@@ -29,6 +29,7 @@ scon=MySQLdb.connect(host=Mserver,user=Muser,passwd=Mpw,db=Mdb)
 scur=scon.cursor()
 
 i=0
+d=0
 filename=sys.argv[1]
 infile=open(filename,"r")
 if re.search('gpx',filename):
@@ -46,7 +47,16 @@ if re.search('gpx',filename):
         # do we have elevation?
         if loc.has_elevation():
           elev=loc.elevation
-	# INSERT INTO location VALUES (datetime,lat,long,horizacc,alt,vertacc,speed,heading,battery)
+        # make sure we don't already have an entry for this time
+        scur.execute('SELECT * FROM location WHERE UTC = \'%s\'',loc.time.strftime("%Y-%m-%d %H:%M:%S"))
+        recs=cursor.fetchall()
+        if len(recs)>0
+          # default to automatically replacing. this should be given as a user
+          # switch, when everything is integrated into magellan.py
+          command='DELETE FROM %s WHERE UTC = \'%s\'' % (TABLENAME,loc.time.strftime("%Y-%m-%d %H:%M:%S"))
+          scur.execute(command)
+          d=d+1
+        # INSERT INTO location VALUES (datetime,lat,long,horizacc,alt,vertacc,speed,heading,battery)
         command='INSERT INTO %s VALUES (\'%s\',%f,%f,%f,%f,%f,%f,%f,%i)' % (TABLENAME,loc.time.strftime("%Y-%m-%d %H:%M:%S"),loc.latitude,loc.longitude,hacc,elev,vacc,speed,heading,batt)
         scur.execute(command)
         i=i+1
@@ -60,6 +70,15 @@ else:
       s=line.split(',')
       batt=-1
       vacc=-1
+      # make sure we don't already have an entry for this time
+      scur.execute('SELECT * FROM location WHERE UTC = \'%s\'',loc.time.strftime("%Y-%m-%d %H:%M:%S"))
+      recs=cursor.fetchall()
+      if len(recs)>0
+        # default to automatically replacing. this should be given as a user
+        # switch, when everything is integrated into magellan.py
+        command='DELETE FROM %s WHERE UTC = \'%s\'' % (TABLENAME,loc.time.strftime("%Y-%m-%d %H:%M:%S"))
+        scur.execute(command)
+        d=d+1
       # INSERT INTO location VALUES (datetime,lat,long,horizacc,alt,vertacc,speed,heading,battery)
       command='INSERT INTO %s VALUES (\'%s\',%f,%f,%f,%f,%f,%f,%f,%i)' % (TABLENAME,s[0].split('Z')[0],float(s[1]),float(s[2]),float(s[4]),float(s[3]),vacc,float(s[6]),float(s[5].rstrip('%\n')),batt)
       scur.execute(command)
@@ -74,7 +93,8 @@ infile.close()
 scur.close()
 scon.close()
 
-print "%i unique records imported from mygpsdata.log.\n" % (i)
+print "%i unique records imported from %s.\n" % (i-d,sys.argv[1])
+print "%i duplicate records replaced." % (d)
 
 # rename the log file to the archive
 #today=date.today()
