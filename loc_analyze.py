@@ -98,6 +98,7 @@ elif mode=='month':
 if len(recs) > 1:
   print "More than one home location for the specified time."
   print "This feature not yet implemented. Exiting. Sorry!"
+  hlocs=recs
   sys.exit()
 elif len(recs)==0:
   print "ERROR: no home location records found for the specified time. Assuming all records are 'away' or 'traveling'."
@@ -139,26 +140,31 @@ for rec1 in recs:
     else:
       # here, really need to get the time at the start of the week, then compute the time until the first record
       # first check if the rec is within the home distance
-      dlat=rec0[1]-hlat
-      dlong=rec0[2]-hlong
-      rdlat=math.radians(dlat)
-      rdlong=math.radians(dlong)
-      # use the haversine formula to calculate the distance
-      ha=math.sin(rdlat/2) * math.sin(rdlat/2) + math.cos(math.radians(rec0[1])) * math.cos(math.radians(rec1[1]))*math.sin(rdlong/2) * math.sin(rdlong/2);
-      hc= 2 * math.atan2(math.sqrt(ha), math.sqrt(1-ha))
-      dist=6378.1*hc
-      if dist > hradius:
-        # we're outside the home radius. chock this up as away
-        #atime+=dechrs*60.
-        if mode=='week':
-          command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'away\')' % (rec0[0])
-          cursor.execute(command)
-      else:
-        # inside the home radius. we're in town
-        #htime+=dechrs*60.
-        if mode=='week':
-          command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'home\')' % (rec0[0])
-          cursor.execute(command)
+      if hlocs:
+        # gotta get fancy, we have multiple home locations!
+        # figure out when the current timestamp is, then make that the new hlat/hlong values
+        # duplicate this below, too
+      else: 
+        dlat=rec0[1]-hlat
+        dlong=rec0[2]-hlong
+        rdlat=math.radians(dlat)
+        rdlong=math.radians(dlong)
+        # use the haversine formula to calculate the distance
+        ha=math.sin(rdlat/2) * math.sin(rdlat/2) + math.cos(math.radians(rec0[1])) * math.cos(math.radians(rec1[1]))*math.sin(rdlong/2) * math.sin(rdlong/2);
+        hc= 2 * math.atan2(math.sqrt(ha), math.sqrt(1-ha))
+        dist=6378.1*hc
+        if dist > hradius:
+          # we're outside the home radius. chock this up as away
+          #atime+=dechrs*60.
+          if mode=='week':
+            command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'away\')' % (rec0[0])
+            cursor.execute(command)
+        else:
+          # inside the home radius. we're in town
+          #htime+=dechrs*60.
+          if mode=='week':
+            command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'home\')' % (rec0[0])
+            cursor.execute(command)
   else: 
     if hradius!=-1:
       # first check if the rec is within the home distance
