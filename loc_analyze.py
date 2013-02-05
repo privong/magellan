@@ -86,12 +86,12 @@ cursor=scon.cursor()
 # there should be a better way to select this...
 if mode=='week':
   print "Loading home location for week %i of %i..." % (week,year)
-  command='SELECT * FROM homeloc where (YEAR(STARTDATE) < %i AND (YEAR(ENDDATE) > %i OR YEAR(ENDDATE)=0000)) OR (YEAR(STARTDATE)=%i AND WEEK(STARTDATE,1)<%i AND (YEAR(ENDDATE)>%i or YEAR(ENDDATE)=0000)) OR (YEAR(STARTDATE)=%i AND WEEK(STARTDATE,1)<%i AND YEAR(ENDDATE)=%i AND WEEK(ENDDATE,1)>%i)' % (year,year,year,week,year,year,week,year,week)
+  command='SELECT * FROM homeloc where (YEAR(STARTDATE) < %i AND (YEAR(ENDDATE) > %i OR YEAR(ENDDATE)=0000)) OR (YEAR(STARTDATE)=%i AND WEEK(STARTDATE,1)<%i AND (YEAR(ENDDATE)>%i or YEAR(ENDDATE)=0000)) OR (YEAR(STARTDATE)=%i AND WEEK(STARTDATE,1)<%i AND YEAR(ENDDATE)=%i AND WEEK(ENDDATE,1)>%i) OR (YEAR(STARTDATE)=%i and WEEK(STARTDATE,1)=%i) OR (YEAR(ENDDATE)=%i and WEEK(ENDDATE,1)=%i)' % (year,year,year,week,year,year,week,year,week,year,week,year,week)
   cursor.execute(command)
   recs=cursor.fetchall()
 elif mode=='month':
   print "Loading home location for month %i of %i..." % (month,year)
-  command='SELECT * FROM homeloc where (YEAR(STARTDATE) < %i AND (YEAR(ENDDATE) > %i OR YEAR(ENDDATE)=0000)) OR (YEAR(STARTDATE)=%i AND MONTH(STARTDATE)<%i AND (YEAR(ENDDATE)>%i or YEAR(ENDDATE)=0000)) OR (YEAR(STARTDATE)=%i AND MONTH(STARTDATE)<%i AND YEAR(ENDDATE)=%i AND MONTH(ENDDATE)>%i)' % (year,year,year,month,year,year,month,year,month)
+  command='SELECT * FROM homeloc where (YEAR(STARTDATE) < %i AND (YEAR(ENDDATE) > %i OR YEAR(ENDDATE)=0000)) OR (YEAR(STARTDATE)=%i AND MONTH(STARTDATE)<%i AND (YEAR(ENDDATE)>%i or YEAR(ENDDATE)=0000)) OR (YEAR(STARTDATE)=%i AND MONTH(STARTDATE)<%i AND YEAR(ENDDATE)=%i AND MONTH(ENDDATE)>%i) OR (YEAR(ENDDATE)=%i and MONTH(ENDDATE)=%i) or (YEAR(STARTDATE)=%i AND MONTH(STARTDATE)=%i)' % (year,year,year,month,year,year,month,year,month,year,month,year,month)
   cursor.execute(command)
   recs=cursor.fetchall()
 
@@ -100,8 +100,10 @@ if len(recs) > 1:
   print "This feature not yet implemented. Exiting. Sorry!"
   sys.exit()
 elif len(recs)==0:
-  print "ERROR: no home location records found for the specified time. Exiting."
-  sys.exit()
+  print "ERROR: no home location records found for the specified time. Assuming all records are 'away' or 'traveling'."
+  hlat=-1
+  hlong=-1
+  hradius=-1
 else:
   hlat=(recs[0])[2]
   hlong=(recs[0])[3]
@@ -116,6 +118,10 @@ elif mode=='month':
   cursor.execute(command)
   recs=cursor.fetchall()
 
+if len(recs)<1:
+  sys.stderr.write('ERROR: no records found for the requested time interval. Exiting.\n')
+  sys.exit()
+
 # go through the rows sequentially. First, check if the GPS location puts it
 # within the "home" tolerance specified above. If it is, add that time to the 
 # amount spent at "home".
@@ -124,42 +130,83 @@ nrecs=len(recs)
 print "Processing GPS records.."
 for rec1 in recs:
   if rec1==rec0:
-    # here, really need to get the time at the start of the week, then compute the time until the first record
-    # first check if the rec is within the home distance
-    dlat=rec0[1]-hlat
-    dlong=rec0[2]-hlong
-    rdlat=math.radians(dlat)
-    rdlong=math.radians(dlong)
-    # use the haversine formula to calculate the distance
-    ha=math.sin(rdlat/2) * math.sin(rdlat/2) + math.cos(math.radians(rec0[1])) * math.cos(math.radians(rec1[1]))*math.sin(rdlong/2) * math.sin(rdlong/2);
-    hc= 2 * math.atan2(math.sqrt(ha), math.sqrt(1-ha))
-    dist=6378.1*hc
-    if dist > hradius:
-      # we're outside the home radius. chock this up as away
-      #atime+=dechrs*60.
+    if hradius==-1:
+      # it's all away
+      atime+=dechrs*60.
       if mode=='week':
-        command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'away\')' % (rec0[0])
-        cursor.execute(command)
+        command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'away\')' % (rec1[0])
+        cursor.execute(command)  
     else:
-      # inside the home radius. we're in town
-      #htime+=dechrs*60.
-      if mode=='week':
-        command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'home\')' % (rec0[0])
-        cursor.execute(command)
+      # here, really need to get the time at the start of the week, then compute the time until the first record
+      # first check if the rec is within the home distance
+      dlat=rec0[1]-hlat
+      dlong=rec0[2]-hlong
+      rdlat=math.radians(dlat)
+      rdlong=math.radians(dlong)
+      # use the haversine formula to calculate the distance
+      ha=math.sin(rdlat/2) * math.sin(rdlat/2) + math.cos(math.radians(rec0[1])) * math.cos(math.radians(rec1[1]))*math.sin(rdlong/2) * math.sin(rdlong/2);
+      hc= 2 * math.atan2(math.sqrt(ha), math.sqrt(1-ha))
+      dist=6378.1*hc
+      if dist > hradius:
+        # we're outside the home radius. chock this up as away
+        #atime+=dechrs*60.
+        if mode=='week':
+          command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'away\')' % (rec0[0])
+          cursor.execute(command)
+      else:
+        # inside the home radius. we're in town
+        #htime+=dechrs*60.
+        if mode=='week':
+          command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'home\')' % (rec0[0])
+          cursor.execute(command)
   else: 
-    # first check if the rec is within the home distance
-    dlat=rec1[1]-hlat
-    dlong=rec1[2]-hlong
-    rdlat=math.radians(dlat)
-    rdlong=math.radians(dlong)
-    # use the haversine formula to calculate the distance
-    ha=math.sin(rdlat/2) * math.sin(rdlat/2) + math.cos(math.radians(rec0[1])) * math.cos(math.radians(rec1[1]))*math.sin(rdlong/2) * math.sin(rdlong/2);
-    hc= 2 * math.atan2(math.sqrt(ha), math.sqrt(1-ha))
-    dist=6378.1*hc
-    tdiff=rec1[0]-rec0[0]
-    dechrs=tdiff.days*24+tdiff.seconds/3600.
-    if dist > hradius:
-      # we're outside the home radius. see if we're traveling or not
+    if hradius!=-1:
+      # first check if the rec is within the home distance
+      dlat=rec1[1]-hlat
+      dlong=rec1[2]-hlong
+      rdlat=math.radians(dlat)
+      rdlong=math.radians(dlong)
+      # use the haversine formula to calculate the distance
+      ha=math.sin(rdlat/2) * math.sin(rdlat/2) + math.cos(math.radians(rec0[1])) * math.cos(math.radians(rec1[1]))*math.sin(rdlong/2) * math.sin(rdlong/2);
+      hc= 2 * math.atan2(math.sqrt(ha), math.sqrt(1-ha))
+      dist=6378.1*hc
+      tdiff=rec1[0]-rec0[0]
+      dechrs=tdiff.days*24+tdiff.seconds/3600.
+      if dist > hradius:
+        # we're outside the home radius. see if we're traveling or not
+        dlat=rec0[1]-rec1[1]
+        dlong=rec0[2]-rec1[2]
+        rdlat=math.radians(dlat)
+        rdlong=math.radians(dlong)
+        # use the haversine formula to calculate the distance
+        ha=math.sin(rdlat/2) * math.sin(rdlat/2) + math.cos(math.radians(rec0[1])) * math.cos(math.radians(rec1[1]))*math.sin(rdlong/2) * math.sin(rdlong/2);
+        hc= 2 * math.atan2(math.sqrt(ha), math.sqrt(1-ha))
+        travdist=6378.1*hc
+        # now compute the average speed, see if we're traveling or not
+        speed=travdist/dechrs	# this is in km/hr
+        msspeed=speed/3.6
+        if msspeed > TRAVELTHRESH:
+          # we're traveling!
+          ttime+=dechrs*60.
+          if mode=='week':
+            command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'travel\')' % (rec1[0])
+            cursor.execute(command)
+        else:
+          # we're away
+          atime+=dechrs*60.
+          if mode=='week':
+            command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'away\')' % (rec1[0])
+            cursor.execute(command)
+      else:
+        tdiff=rec1[0]-rec0[0]
+        dechrs=tdiff.days*24+tdiff.seconds/3600.
+        # inside the home radius. we're in town
+        htime+=dechrs*60.
+        if mode=='week':
+          command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'home\')' % (rec1[0])
+          cursor.execute(command)
+    else:
+      # no home radius. see if we're traveling or not
       dlat=rec0[1]-rec1[1]
       dlong=rec0[2]-rec1[2]
       rdlat=math.radians(dlat)
@@ -169,7 +216,7 @@ for rec1 in recs:
       hc= 2 * math.atan2(math.sqrt(ha), math.sqrt(1-ha))
       travdist=6378.1*hc
       # now compute the average speed, see if we're traveling or not
-      speed=travdist/dechrs	# this is in km/hr
+      speed=travdist/dechrs   # this is in km/hr
       msspeed=speed/3.6
       if msspeed > TRAVELTHRESH:
         # we're traveling!
@@ -183,14 +230,6 @@ for rec1 in recs:
         if mode=='week':
           command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'away\')' % (rec1[0])
           cursor.execute(command)
-    else:
-      tdiff=rec1[0]-rec0[0]
-      dechrs=tdiff.days*24+tdiff.seconds/3600.
-      # inside the home radius. we're in town
-      htime+=dechrs*60.
-      if mode=='week':
-        command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'home\')' % (rec1[0])
-        cursor.execute(command)
   # reset the 'new' rec to the old rec
   rec0=rec1
   # and loop to the next record
