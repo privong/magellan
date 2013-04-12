@@ -9,6 +9,7 @@
 import MySQLdb
 import time,sys,re,ConfigParser
 import gpxpy
+import magellan
 
 # load information from the configuration file
 config=ConfigParser.RawConfigParser()

@@ -9,6 +9,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 from datetime import date
+import magellan
 
 parser=argparse.ArgumentParser(description='Plot information on home/away/travel based on different time intervals.')
 parser.add_argument('-week',action='store_true',default=False,help='Plot analyitics for the past 10 weeks.')

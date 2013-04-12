@@ -15,6 +15,7 @@ import math
 import pycurl
 import numpy
 import ConfigParser
+import magellan
 
 from datetime import date
 
@@ -89,13 +90,7 @@ for rec1 in recs:
       # compute distances from that array location
       tlat=uniqueaway[i]
       tlong=uniqueaway[i+1]
-      tdlat=tlat-thisloc[0][0]
-      tdlong=tlong-thisloc[0][1]
-      trdlat=math.radians(tdlat)
-      trdlong=math.radians(tdlong)
-      tha=math.sin(trdlat/2) * math.sin(trdlat/2) + math.cos(math.radians(tlat)) * math.cos(math.radians(thisloc[0][0]))*math.sin(trdlong/2) * math.sin(trdlong/2)
-      thc= 2 * math.atan2(math.sqrt(tha), math.sqrt(1-tha))
-      tdist=6378.1*thc
+      tdist=GreatCircDist([tlat,tlong],thisloc[0])
       # check for distance
       if tdist < UAWAY:
         # within an existing unique location, set a flag that it matches

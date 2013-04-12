@@ -15,6 +15,7 @@ import sys
 import time
 import math
 import ConfigParser
+import magellan
 
 # load information from the configuration file
 config=ConfigParser.RawConfigParser()
@@ -145,14 +146,7 @@ for rec1 in recs:
         # figure out when the current timestamp is, then make that the new hlat/hlong values
         # duplicate this below, too
       else: 
-        dlat=rec0[1]-hlat
-        dlong=rec0[2]-hlong
-        rdlat=math.radians(dlat)
-        rdlong=math.radians(dlong)
-        # use the haversine formula to calculate the distance
-        ha=math.sin(rdlat/2) * math.sin(rdlat/2) + math.cos(math.radians(rec0[1])) * math.cos(math.radians(rec1[1]))*math.sin(rdlong/2) * math.sin(rdlong/2);
-        hc= 2 * math.atan2(math.sqrt(ha), math.sqrt(1-ha))
-        dist=6378.1*hc
+        dist=GreatCircDist([hlat,hlong],rec0)
         if dist > hradius:
           # we're outside the home radius. chock this up as away
           #atime+=dechrs*60.
@@ -168,26 +162,12 @@ for rec1 in recs:
   else: 
     if hradius!=-1:
       # first check if the rec is within the home distance
-      dlat=rec1[1]-hlat
-      dlong=rec1[2]-hlong
-      rdlat=math.radians(dlat)
-      rdlong=math.radians(dlong)
-      # use the haversine formula to calculate the distance
-      ha=math.sin(rdlat/2) * math.sin(rdlat/2) + math.cos(math.radians(rec0[1])) * math.cos(math.radians(rec1[1]))*math.sin(rdlong/2) * math.sin(rdlong/2);
-      hc= 2 * math.atan2(math.sqrt(ha), math.sqrt(1-ha))
-      dist=6378.1*hc
+      dist=GreatCircDist([hlat,hlong],rec1)
       tdiff=rec1[0]-rec0[0]
       dechrs=tdiff.days*24+tdiff.seconds/3600.
       if dist > hradius:
         # we're outside the home radius. see if we're traveling or not
-        dlat=rec0[1]-rec1[1]
-        dlong=rec0[2]-rec1[2]
-        rdlat=math.radians(dlat)
-        rdlong=math.radians(dlong)
-        # use the haversine formula to calculate the distance
-        ha=math.sin(rdlat/2) * math.sin(rdlat/2) + math.cos(math.radians(rec0[1])) * math.cos(math.radians(rec1[1]))*math.sin(rdlong/2) * math.sin(rdlong/2);
-        hc= 2 * math.atan2(math.sqrt(ha), math.sqrt(1-ha))
-        travdist=6378.1*hc
+        travdist=GreatCircDist(rec1,rec0)
         # now compute the average speed, see if we're traveling or not
         speed=travdist/dechrs	# this is in km/hr
         msspeed=speed/3.6
@@ -213,14 +193,7 @@ for rec1 in recs:
           cursor.execute(command)
     else:
       # no home radius. see if we're traveling or not
-      dlat=rec0[1]-rec1[1]
-      dlong=rec0[2]-rec1[2]
-      rdlat=math.radians(dlat)
-      rdlong=math.radians(dlong)
-      # use the haversine formula to calculate the distance
-      ha=math.sin(rdlat/2) * math.sin(rdlat/2) + math.cos(math.radians(rec0[1])) * math.cos(math.radians(rec1[1]))*math.sin(rdlong/2) * math.sin(rdlong/2);
-      hc= 2 * math.atan2(math.sqrt(ha), math.sqrt(1-ha))
-      travdist=6378.1*hc
+      travdist=GreatCircDist(rec1,rec0)
       # now compute the average speed, see if we're traveling or not
       speed=travdist/dechrs   # this is in km/hr
       msspeed=speed/3.6
