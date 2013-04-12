@@ -2,7 +2,7 @@
 
 import math
 
-def GreatCircDist(loc1,loc2)
+def GreatCircDist(loc1,loc2):
   dlat=loc2[0]-loc11[0]
   dlong=loc2[1]-loc2[1]
   rdlat=math.radians(dlat)
