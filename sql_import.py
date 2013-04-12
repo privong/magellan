@@ -11,23 +11,9 @@ import time,sys,re,ConfigParser
 import gpxpy
 import magellan
 
-# load information from the configuration file
-config=ConfigParser.RawConfigParser()
-config.read('.magellan')
-if not(config.get('Server Config','server')) or not(config.get('Server Config','user')) or not(config.get('Server Config','password')) or not(config.get('Server Config','db')):
-  sys.stderr.write('Configuration file error. Please check the configuration file.\n')
-  sys.exit(-1)
-else:
-  Mserver=config.get('Server Config','server')
-  Muser=config.get('Server Config','user')
-  Mpw=config.get('Server Config','password')
-  Mdb=config.get('Server Config','db')
+scur=magellan.initdb()
 
 TABLENAME="locations"
-
-# create a catabase connection
-scon=MySQLdb.connect(host=Mserver,user=Muser,passwd=Mpw,db=Mdb)
-scur=scon.cursor()
 
 i=0
 d=0

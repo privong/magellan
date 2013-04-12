@@ -16,20 +16,9 @@ import time
 import math
 import ConfigParser
 import magellan
-
-# load information from the configuration file
-config=ConfigParser.RawConfigParser()
-config.read('.magellan')
-if not(config.get('Server Config','server')) or not(config.get('Server Config','user')) or not(config.get('Server Config','password')) or not(config.get('Server Config','db')):
-  sys.stderr.write('Configuration file error. Please check the configuration file.\n')
-  sys.exit(-1)
-else:
-  Mserver=config.get('Server Config','server')
-  Muser=config.get('Server Config','user')
-  Mpw=config.get('Server Config','password')
-  Mdb=config.get('Server Config','db')
-
 from datetime import date
+
+cursor=magellan.initdb()
 
 TABLENAME="locations"
 
@@ -79,9 +68,6 @@ if nargs>1:
     elif nargs==4:
       month=int(sys.argv[2])
       year=int(sys.argv[3])
-
-scon=MySQLdb.connect(host=Mserver,user=Muser,passwd=Mpw,db=Mdb)
-cursor=scon.cursor()
 
 # get home location from the 'homeloc' database
 # there should be a better way to select this...

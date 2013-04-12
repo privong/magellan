@@ -1,7 +1,26 @@
 # magellan library
 
-import math
+import math,ConfigParser,MySQLdb
 
+# load configuration file and connect to the database
+def initdb():
+  # load information from the configuration file
+  config=ConfigParser.RawConfigParser()
+  config.read('.magellan')
+  if not(config.get('Server Config','server')) or not(config.get('Server Config','user')) or not(config.get('Server Config','password')) or not(config.get('Server Config','db')):
+    sys.stderr.write('Configuration file error. Please check the configuration file.\n')
+    sys.exit(-1)
+  else:
+    Mserver=config.get('Server Config','server')
+    Muser=config.get('Server Config','user')
+    Mpw=config.get('Server Config','password')
+    Mdb=config.get('Server Config','db')
+  # create a catabase connection
+  scon=MySQLdb.connect(host=Mserver,user=Muser,passwd=Mpw,db=Mdb)
+  scur=scon.cursor()
+  return scur
+
+# compute the great circle distance using the haversine formula
 def GreatCircDist(loc1,loc2):
   dlat=loc2[0]-loc1[0]
   dlong=loc2[1]-loc2[1]
