@@ -90,7 +90,7 @@ for rec1 in recs:
       # compute distances from that array location
       tlat=uniqueaway[i]
       tlong=uniqueaway[i+1]
-      tdist=GreatCircDist([tlat,tlong],thisloc[0])
+      tdist=magellan.GreatCircDist([tlat,tlong],thisloc[0])
       # check for distance
       if tdist < UAWAY:
         # within an existing unique location, set a flag that it matches

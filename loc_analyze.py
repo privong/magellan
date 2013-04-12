@@ -106,10 +106,12 @@ elif len(recs)==0:
   hlat=-1
   hlong=-1
   hradius=-1
+  hlocs=0
 else:
   hlat=(recs[0])[2]
   hlong=(recs[0])[3]
   hradius=(recs[0])[4]
+  hlocs=0
 
 if mode=='week':
   command='SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i ORDER by locations.UTC' % (week,year)
@@ -145,8 +147,9 @@ for rec1 in recs:
         # gotta get fancy, we have multiple home locations!
         # figure out when the current timestamp is, then make that the new hlat/hlong values
         # duplicate this below, too
+        print 0
       else: 
-        dist=GreatCircDist([hlat,hlong],rec0)
+        dist=magellan.GreatCircDist([hlat,hlong],rec0[1:])
         if dist > hradius:
           # we're outside the home radius. chock this up as away
           #atime+=dechrs*60.
@@ -162,12 +165,12 @@ for rec1 in recs:
   else: 
     if hradius!=-1:
       # first check if the rec is within the home distance
-      dist=GreatCircDist([hlat,hlong],rec1)
+      dist=magellan.GreatCircDist([hlat,hlong],rec1[1:])
       tdiff=rec1[0]-rec0[0]
       dechrs=tdiff.days*24+tdiff.seconds/3600.
       if dist > hradius:
         # we're outside the home radius. see if we're traveling or not
-        travdist=GreatCircDist(rec1,rec0)
+        travdist=magellan.GreatCircDist(rec1[1:],rec0[1:])
         # now compute the average speed, see if we're traveling or not
         speed=travdist/dechrs	# this is in km/hr
         msspeed=speed/3.6
@@ -193,7 +196,7 @@ for rec1 in recs:
           cursor.execute(command)
     else:
       # no home radius. see if we're traveling or not
-      travdist=GreatCircDist(rec1,rec0)
+      travdist=magellan.GreatCircDist(rec1[1:],rec0[1:])
       # now compute the average speed, see if we're traveling or not
       speed=travdist/dechrs   # this is in km/hr
       msspeed=speed/3.6
