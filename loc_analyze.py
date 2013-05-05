@@ -221,9 +221,9 @@ print "Submitting totals to SQL database.."
 
 # submit to the database
 if mode=='week':
-  command='INSERT INTO magellan.analysis_weekly (year,week,home,homefrac,away,awayfrac,travel,travelfrac) values (%i,%i,%f,%f,%f,%f,%f,%f)' % (year,week,htime,htime/totaltime,atime,atime/totaltime,ttime,ttime/totaltime)
+  command='INSERT INTO magellan.analysis_weekly (timeID,year,week,home,homefrac,away,awayfrac,travel,travelfrac) values (%i,%i,%i,%f,%f,%f,%f,%f,%f)' % (magellan.yearid(year,week),year,week,htime,htime/totaltime,atime,atime/totaltime,ttime,ttime/totaltime)
 elif mode=='month':
-  command='INSERT INTO magellan.analysis_monthly (year,month,home,homefrac,away,awayfrac,travel,travelfrac) values (%i,%i,%f,%f,%f,%f,%f,%f)' % (year,month,htime,htime/totaltime,atime,atime/totaltime,ttime,ttime/totaltime)
+  command='INSERT INTO magellan.analysis_monthly (timeID,year,month,home,homefrac,away,awayfrac,travel,travelfrac) values (%i,%i,%i,%f,%f,%f,%f,%f,%f)' % (magellan.yearid(year,month),year,month,htime,htime/totaltime,atime,atime/totaltime,ttime,ttime/totaltime)
 
 cursor.execute(command)
 

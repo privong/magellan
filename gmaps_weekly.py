@@ -111,4 +111,4 @@ else:
 
 # close SQL
 cursor.close()
-scon.close()
+#scon.close()

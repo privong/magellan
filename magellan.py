@@ -29,3 +29,6 @@ def GreatCircDist(loc1,loc2):
   ha=math.sin(rdlat/2) * math.sin(rdlat/2) + math.cos(math.radians(loc1[1])) * math.cos(math.radians(loc1[1]))*math.sin(rdlong/2) * math.sin(rdlong/2)
   hc= 2 * math.atan2(math.sqrt(ha), math.sqrt(1-ha))
   return 6378.1*hc
+
+def yearid(year,other):
+  return int(str(year)+str(other).zfill(2))

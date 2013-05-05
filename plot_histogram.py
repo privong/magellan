@@ -27,7 +27,7 @@ if args.week:
   today=date.today()
   week=(today.isocalendar())[1]-1
   year=(today.isocalendar())[0]
-  
+
   # here, retreive all the data from the past 10 weeks
   if week<=10:
     # get the number of weeks last year
@@ -42,7 +42,7 @@ elif args.year:
   year=(today.isocalendar())[0]
   command='SELECT year,week,homefrac,awayfrac,travelfrac from analysis_weekly where YEAR=%i ORDER BY week' % (year)
   file='year.png'
-
+  
 # run the command
 cursor.execute(command)
 recs=cursor.fetchall()
@@ -70,4 +70,4 @@ plt.savefig('/srv/http/local/location/'+file,transparent=True)
 
 # close SQL
 cursor.close()
-scon.close()
+#scon.close()
