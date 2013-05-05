@@ -85,11 +85,10 @@ elif mode=='month':
 mhlocs=0
 if len(recs) > 1:
   print "More than one home location for the specified time."
-  #print "This feature not yet implemented. Exiting. Sorry!"
   mhlocs=1
   hlocs=recs
 elif len(recs)==0:
-  print "ERROR: no home location records found for the specified time. Assuming all records are 'away' or 'traveling'."
+  print "WARNING: no home location records found for the specified time. Assuming all records are 'away' or 'traveling'."
   hlat=-1
   hlong=-1
   hradius=-1
