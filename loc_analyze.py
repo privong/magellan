@@ -82,11 +82,12 @@ elif mode=='month':
   cursor.execute(command)
   recs=cursor.fetchall()
 
+mhlocs=0
 if len(recs) > 1:
   print "More than one home location for the specified time."
-  print "This feature not yet implemented. Exiting. Sorry!"
+  #print "This feature not yet implemented. Exiting. Sorry!"
+  mhlocs=1
   hlocs=recs
-  sys.exit()
 elif len(recs)==0:
   print "ERROR: no home location records found for the specified time. Assuming all records are 'away' or 'traveling'."
   hlat=-1
@@ -119,6 +120,18 @@ rec0=recs[0]
 nrecs=len(recs)
 print "Processing GPS records.."
 for rec1 in recs:
+  if mhlocs:
+    # figure out which homeloc is appropriate for this datestamp
+    hradius=-1	# failsafe: treat everything as 'away' if there's no matching
+                # homeloc
+    i=0
+    for hopt in hlocs:
+      if hopt[0] <= rec1[0].date() and hopt[1] >= rec1[0].date():
+        # have our home location
+        hlat=hopt[2]
+        hlong=hopt[3]
+        hradius=hopt[4]
+      i=i+1
   if rec1==rec0:
     if hradius==-1:
       # it's all away
@@ -129,25 +142,19 @@ for rec1 in recs:
     else:
       # here, really need to get the time at the start of the week, then compute the time until the first record
       # first check if the rec is within the home distance
-      if hlocs:
-        # gotta get fancy, we have multiple home locations!
-        # figure out when the current timestamp is, then make that the new hlat/hlong values
-        # duplicate this below, too
-        print 0
-      else: 
-        dist=magellan.GreatCircDist([hlat,hlong],rec0[1:])
-        if dist > hradius:
-          # we're outside the home radius. chock this up as away
-          #atime+=dechrs*60.
-          if mode=='week':
-            command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'away\')' % (rec0[0])
-            cursor.execute(command)
-        else:
-          # inside the home radius. we're in town
-          #htime+=dechrs*60.
-          if mode=='week':
-            command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'home\')' % (rec0[0])
-            cursor.execute(command)
+      dist=magellan.GreatCircDist([hlat,hlong],rec0[1:])
+      if dist > hradius:
+        # we're outside the home radius. chock this up as away
+        #atime+=dechrs*60.
+        if mode=='week':
+          command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'away\')' % (rec0[0])
+          cursor.execute(command)
+      else:
+        # inside the home radius. we're in town
+        #htime+=dechrs*60.
+        if mode=='week':
+          command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'home\')' % (rec0[0])
+          cursor.execute(command)
   else: 
     if hradius!=-1:
       # first check if the rec is within the home distance
@@ -220,4 +227,4 @@ elif mode=='month':
 
 # close SQL
 cursor.close()
-scon.close()
+#scon.close()
