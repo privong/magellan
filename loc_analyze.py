@@ -20,7 +20,7 @@ from datetime import date
 
 cursor=magellan.initdb()
 
-TABLENAME="locations"
+TABLENAME="locations_spec"
 
 TRAVELTHRESH=13.5 # speed threshold which determines if you're "traveling" or "away" (in m/s)
 
@@ -118,6 +118,7 @@ if len(recs)<1:
 rec0=recs[0]
 nrecs=len(recs)
 loctype='away'
+d=0
 print "Processing GPS records.."
 for rec1 in recs:
   if mhlocs:
@@ -152,9 +153,6 @@ for rec1 in recs:
         #htime+=dechrs*60.
         if mode=='week':
           loctype='home'
-    # now insert the record
-    command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'%s\')' % (loctype,rec0[0])
-    cursor.execute(command)
   else: 
     if hradius!=-1:
       # first check if the rec is within the home distance
@@ -200,11 +198,20 @@ for rec1 in recs:
         atime+=dechrs*60.
         if mode=='week':
           loctype='away'
-    # now insert the record
-    command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'%s\')' % (loctype,rec1[0])
-    cursor.execute(command)
   # reset the 'new' rec to the old rec
   rec0=rec1
+  # check for existing record
+  cursor.execute('SELECT * FROM %s WHERE UTC = \'%s\'' % (TABLENAME,rec0[0].strftime("%Y-%m-%d %H:%M:%S")))
+  recs=cursor.fetchall()
+  if len(recs)>0:
+    # default to automatically replacing. this should be given as a user
+    # switch, when everything is integrated into magellan.py
+    command='DELETE FROM %s WHERE UTC = \'%s\'' % (TABLENAME,rec0[0].strftime("%Y-%m-%d %H:%M:%S"))
+    cursor.execute(command)
+    d=d+1
+  # now insert the record (this currently works for all records)
+  command='INSERT into %s (UTC,Type) values (\'%s\',\'%s\')' % (TABLENAME,rec0[0],loctype)
+  cursor.execute(command)
   # and loop to the next record
 
 # after we've iterated over the week write the totals, percentages of the week
@@ -213,6 +220,7 @@ for rec1 in recs:
 totaltime=atime+htime+ttime
 
 print "%s recorded a total time of approximately %f hours from %i records." % (mode,totaltime/60.,nrecs)
+print "Replaced %i duplicate entries." % (d)
 print "Submitting totals to SQL database.."
 
 # submit to the database
