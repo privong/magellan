@@ -74,13 +74,11 @@ if nargs>1:
 if mode=='week':
   print "Loading home location for week %i of %i..." % (week,year)
   command='SELECT * FROM homeloc where (YEAR(STARTDATE) < %i AND (YEAR(ENDDATE) > %i OR YEAR(ENDDATE)=0000)) OR (YEAR(STARTDATE)=%i AND WEEK(STARTDATE,1)<%i AND (YEAR(ENDDATE)>%i or YEAR(ENDDATE)=0000)) OR (YEAR(STARTDATE)=%i AND WEEK(STARTDATE,1)<%i AND YEAR(ENDDATE)=%i AND WEEK(ENDDATE,1)>%i) OR (YEAR(STARTDATE)=%i and WEEK(STARTDATE,1)=%i) OR (YEAR(ENDDATE)=%i and WEEK(ENDDATE,1)=%i)' % (year,year,year,week,year,year,week,year,week,year,week,year,week)
-  cursor.execute(command)
-  recs=cursor.fetchall()
 elif mode=='month':
   print "Loading home location for month %i of %i..." % (month,year)
   command='SELECT * FROM homeloc where (YEAR(STARTDATE) < %i AND (YEAR(ENDDATE) > %i OR YEAR(ENDDATE)=0000)) OR (YEAR(STARTDATE)=%i AND MONTH(STARTDATE)<%i AND (YEAR(ENDDATE)>%i or YEAR(ENDDATE)=0000)) OR (YEAR(STARTDATE)=%i AND MONTH(STARTDATE)<%i AND YEAR(ENDDATE)=%i AND MONTH(ENDDATE)>%i) OR (YEAR(ENDDATE)=%i and MONTH(ENDDATE)=%i) or (YEAR(STARTDATE)=%i AND MONTH(STARTDATE)=%i)' % (year,year,year,month,year,year,month,year,month,year,month,year,month)
-  cursor.execute(command)
-  recs=cursor.fetchall()
+cursor.execute(command)
+recs=cursor.fetchall()
 
 mhlocs=0
 if len(recs) > 1:
@@ -101,12 +99,10 @@ else:
 
 if mode=='week':
   command='SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i ORDER by locations.UTC' % (week,year)
-  cursor.execute(command)
-  recs=cursor.fetchall()
 elif mode=='month':
   command='SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i ORDER by locations.UTC' % (month,year)
-  cursor.execute(command)
-  recs=cursor.fetchall()
+cursor.execute(command)
+recs=cursor.fetchall()
 
 if len(recs)<1:
   sys.stderr.write('ERROR: no records found for the requested time interval. Exiting.\n')
