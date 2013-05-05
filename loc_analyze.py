@@ -118,6 +118,7 @@ if len(recs)<1:
 # amount spent at "home".
 rec0=recs[0]
 nrecs=len(recs)
+loctype='away'
 print "Processing GPS records.."
 for rec1 in recs:
   if mhlocs:
@@ -137,8 +138,7 @@ for rec1 in recs:
       # it's all away
       atime+=dechrs*60.
       if mode=='week':
-        command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'away\')' % (rec1[0])
-        cursor.execute(command)  
+        loctype='away'
     else:
       # here, really need to get the time at the start of the week, then compute the time until the first record
       # first check if the rec is within the home distance
@@ -147,14 +147,15 @@ for rec1 in recs:
         # we're outside the home radius. chock this up as away
         #atime+=dechrs*60.
         if mode=='week':
-          command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'away\')' % (rec0[0])
-          cursor.execute(command)
+          loctype='away'
       else:
         # inside the home radius. we're in town
         #htime+=dechrs*60.
         if mode=='week':
-          command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'home\')' % (rec0[0])
-          cursor.execute(command)
+          loctype='home'
+    # now insert the record
+    command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'%s\')' % (loctype,rec0[0])
+    cursor.execute(command)
   else: 
     if hradius!=-1:
       # first check if the rec is within the home distance
@@ -171,22 +172,19 @@ for rec1 in recs:
           # we're traveling!
           ttime+=dechrs*60.
           if mode=='week':
-            command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'travel\')' % (rec1[0])
-            cursor.execute(command)
+            loctype='travel'
         else:
           # we're away
           atime+=dechrs*60.
           if mode=='week':
-            command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'away\')' % (rec1[0])
-            cursor.execute(command)
+            loctype='away'
       else:
         tdiff=rec1[0]-rec0[0]
         dechrs=tdiff.days*24+tdiff.seconds/3600.
         # inside the home radius. we're in town
         htime+=dechrs*60.
         if mode=='week':
-          command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'home\')' % (rec1[0])
-          cursor.execute(command)
+          loctype='home'
     else:
       # no home radius. see if we're traveling or not
       travdist=magellan.GreatCircDist(rec1[1:],rec0[1:])
@@ -197,14 +195,15 @@ for rec1 in recs:
         # we're traveling!
         ttime+=dechrs*60.
         if mode=='week':
-          command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'travel\')' % (rec1[0])
-          cursor.execute(command)
+          loctype='travel'
       else:
         # we're away
         atime+=dechrs*60.
         if mode=='week':
-          command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'away\')' % (rec1[0])
-          cursor.execute(command)
+          loctype='away'
+    # now insert the record
+    command='INSERT into magellan.locations_spec (UTC,Type) values (\'%s\',\'%s\')' % (loctype,rec1[0])
+    cursor.execute(command)
   # reset the 'new' rec to the old rec
   rec0=rec1
   # and loop to the next record
