@@ -145,7 +145,6 @@ for rec1 in recs:
       if mode=='week':
         loctype='away'
     else:
-      # here, really need to get the time at the start of the week, then compute the time until the first record
       # first check if the rec is within the home distance
       dist=magellan.GreatCircDist([hlat,hlong],rec0[1:])
       if dist > hradius:
