@@ -9,29 +9,16 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 from datetime import date
+import magellan
+
+cursor=magellan.initdb()
 
 parser=argparse.ArgumentParser(description='Plot information on home/away/travel based on different time intervals.')
 parser.add_argument('-week',action='store_true',default=False,help='Plot analyitics for the past 10 weeks.')
 parser.add_argument('-year',action='store_true',default=False,help='Plot analyitics for the current year.')
 args=parser.parse_args()
 
-# load information from the configuration file
-config=ConfigParser.RawConfigParser()
-config.read('.magellan')
-if not(config.get('Server Config','server')) or not(config.get('Server Config','user')) or not(config.get('Server Config','password')) or not(config.get('Server Config','db')):
-  sys.stderr.write('Configuration file error. Please check the configuration file.\n')
-  sys.exit(-1)
-else:
-  Mserver=config.get('Server Config','server')
-  Muser=config.get('Server Config','user')
-  Mpw=config.get('Server Config','password')
-  Mdb=config.get('Server Config','db')
-
 TABLENAME="analyze_weekly"
-
-# set up mySQL connection
-scon=MySQLdb.connect(host=Mserver,user=Muser,passwd=Mpw,db=Mdb)
-cursor=scon.cursor()
 
 if args.week:
   print "Retreiving analyzed weekly data for the past 10 weeks...\n"
@@ -40,7 +27,7 @@ if args.week:
   today=date.today()
   week=(today.isocalendar())[1]-1
   year=(today.isocalendar())[0]
-  
+
   # here, retreive all the data from the past 10 weeks
   if week<=10:
     # get the number of weeks last year
@@ -55,7 +42,7 @@ elif args.year:
   year=(today.isocalendar())[0]
   command='SELECT year,week,homefrac,awayfrac,travelfrac from analysis_weekly where YEAR=%i ORDER BY week' % (year)
   file='year.png'
-
+  
 # run the command
 cursor.execute(command)
 recs=cursor.fetchall()
@@ -83,4 +70,4 @@ plt.savefig('/srv/http/local/location/'+file,transparent=True)
 
 # close SQL
 cursor.close()
-scon.close()
+#scon.close()

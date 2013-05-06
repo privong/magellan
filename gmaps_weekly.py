@@ -15,20 +15,11 @@ import math
 import pycurl
 import numpy
 import ConfigParser
+import magellan
 
 from datetime import date
 
-# load information from the configuration file
-config=ConfigParser.RawConfigParser()
-config.read('.magellan')
-if not(config.get('Server Config','server')) or not(config.get('Server Config','user')) or not(config.get('Server Config','password')) or not(config.get('Server Config','db')):
-  sys.stderr.write('Configuration file error. Please check the configuration file.\n')
-  sys.exit(-1)
-else:
-  Mserver=config.get('Server Config','server')
-  Muser=config.get('Server Config','user')
-  Mpw=config.get('Server Config','password')
-  Mdb=config.get('Server Config','db')
+cursor=magellan.initdb()
 
 UAWAY=60.	# 'unique' locations are 30 km apart
 
@@ -52,9 +43,6 @@ elif nargs>2:
   # use the specified week of the specified year. ignore everything else
   week=int(sys.argv[1])
   year=int(sys.argv[2])
-  
-scon=MySQLdb.connect(host=Mserver,user=Muser,passwd=Mpw,db=Mdb)
-cursor=scon.cursor()
 
 print "Loading home location for week %i of %i..." % (week,year)
 
@@ -89,13 +77,7 @@ for rec1 in recs:
       # compute distances from that array location
       tlat=uniqueaway[i]
       tlong=uniqueaway[i+1]
-      tdlat=tlat-thisloc[0][0]
-      tdlong=tlong-thisloc[0][1]
-      trdlat=math.radians(tdlat)
-      trdlong=math.radians(tdlong)
-      tha=math.sin(trdlat/2) * math.sin(trdlat/2) + math.cos(math.radians(tlat)) * math.cos(math.radians(thisloc[0][0]))*math.sin(trdlong/2) * math.sin(trdlong/2)
-      thc= 2 * math.atan2(math.sqrt(tha), math.sqrt(1-tha))
-      tdist=6378.1*thc
+      tdist=magellan.GreatCircDist([tlat,tlong],thisloc[0])
       # check for distance
       if tdist < UAWAY:
         # within an existing unique location, set a flag that it matches
@@ -129,4 +111,4 @@ else:
 
 # close SQL
 cursor.close()
-scon.close()
+#scon.close()
