@@ -100,17 +100,17 @@ else:
 if mode=='week':
   command='SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i ORDER by locations.UTC' % (week,year)
   command2='SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i ORDER by locations.UTC DESC' % ((52,year-1),(week-1,year))[week > 1]
-  command3='SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i ORDER by locations.UTC' % ((0,year+1),(week+1,year))[week < 53]
+  #command3='SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i ORDER by locations.UTC' % ((0,year+1),(week+1,year))[week < 53]
 elif mode=='month':
   command='SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i ORDER by locations.UTC' % (month,year)
   command2='SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i ORDER by locations.UTC DESC' % ((12,year-1),(month-1,year))[month > 1]
-  command3='SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i ORDER by locations.UTC' % ((1,year+1),(month+1,year))[month < 12]
+  #command3='SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i ORDER by locations.UTC' % ((1,year+1),(month+1,year))[month < 12]
 cursor.execute(command)
 recs=cursor.fetchall()
 cursor.execute(command2)
 preloc=cursor.fetchone()
-cursor.execute(command3)
-postloc=cursor.fetchone()
+#cursor.execute(command3)
+#postloc=cursor.fetchone()
 
 
 if len(recs)<1:
