@@ -109,11 +109,9 @@ cursor.execute(command)
 recs=cursor.fetchall()
 cursor.execute(command2)
 preloc=cursor.fetchone()
-print command2
 cursor.execute(command3)
 postloc=cursor.fetchone()
 
-print preloc
 
 if len(recs)<1:
   sys.stderr.write('ERROR: no records found for the requested time interval. Exiting.\n')
@@ -232,9 +230,9 @@ print "Submitting totals to SQL database.."
 
 # submit to the database
 if mode=='week':
-  command='INSERT INTO magellan.analysis_weekly (timeID,year,week,home,homefrac,away,awayfrac,travel,travelfrac) values (%i,%i,%i,%f,%f,%f,%f,%f,%f)' % (magellan.yearid(year,week),year,week,htime,htime/totaltime,atime,atime/totaltime,ttime,ttime/totaltime)
+  command='REPLACE INTO magellan.analysis_weekly (timeID,year,week,home,homefrac,away,awayfrac,travel,travelfrac) values (%i,%i,%i,%f,%f,%f,%f,%f,%f)' % (magellan.yearid(year,week),year,week,htime,htime/totaltime,atime,atime/totaltime,ttime,ttime/totaltime)
 elif mode=='month':
-  command='INSERT INTO magellan.analysis_monthly (timeID,year,month,home,homefrac,away,awayfrac,travel,travelfrac) values (%i,%i,%i,%f,%f,%f,%f,%f,%f)' % (magellan.yearid(year,month),year,month,htime,htime/totaltime,atime,atime/totaltime,ttime,ttime/totaltime)
+  command='REPLACE INTO magellan.analysis_monthly (timeID,year,month,home,homefrac,away,awayfrac,travel,travelfrac) values (%i,%i,%i,%f,%f,%f,%f,%f,%f)' % (magellan.yearid(year,month),year,month,htime,htime/totaltime,atime,atime/totaltime,ttime,ttime/totaltime)
 
 cursor.execute(command)
 
