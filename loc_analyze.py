@@ -151,13 +151,11 @@ for rec1 in recs:
       if dist > hradius:
         # we're outside the home radius. chock this up as away
         #atime+=dechrs*60.
-        if mode=='week':
-          loctype='away'
+        loctype='away'
       else:
         # inside the home radius. we're in town
         #htime+=dechrs*60.
-        if mode=='week':
-          loctype='home'
+        loctype='home'
   else: 
     if hradius!=-1:
       # first check if the rec is within the home distance
@@ -173,20 +171,17 @@ for rec1 in recs:
         if msspeed > TRAVELTHRESH:
           # we're traveling!
           ttime+=dechrs*60.
-          if mode=='week':
-            loctype='travel'
+          loctype='travel'
         else:
           # we're away
           atime+=dechrs*60.
-          if mode=='week':
-            loctype='away'
+          loctype='away'
       else:
         tdiff=rec1[0]-rec0[0]
         dechrs=tdiff.days*24+tdiff.seconds/3600.
         # inside the home radius. we're in town
         htime+=dechrs*60.
-        if mode=='week':
-          loctype='home'
+        loctype='home'
     else:
       # no home radius. see if we're traveling or not
       travdist=magellan.GreatCircDist(rec1[1:],rec0[1:])
@@ -196,13 +191,11 @@ for rec1 in recs:
       if msspeed > TRAVELTHRESH:
         # we're traveling!
         ttime+=dechrs*60.
-        if mode=='week':
-          loctype='travel'
+        loctype='travel'
       else:
         # we're away
         atime+=dechrs*60.
-        if mode=='week':
-          loctype='away'
+        loctype='away'
   # reset the 'new' rec to the old rec
   rec0=rec1
   # check for existing record
