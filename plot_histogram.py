@@ -66,6 +66,7 @@ plt.ylim([-0.01,1.1])
 plt.xlim(x1-1,x2+1)
 plt.ylabel('Fraction')
 plt.xlabel('Week Number')
+plt.minorticks_on()
 plt.savefig('/srv/http/local/location/'+file,transparent=True)
 
 # close SQL
