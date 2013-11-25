@@ -82,8 +82,8 @@ infile.close()
 scur.close()
 #scon.close()
 
-print "%i unique records imported from %s.\n" % (i-d,sys.argv[1])
-print "%i duplicate records replaced." % (d)
+sys.stdout.write("%i unique records imported from %s.\n" % (i-d,sys.argv[1]))
+sys.stdout.write("%i duplicate records replaced." % (d))
 
 # rename the log file to the archive
 #today=date.today()
