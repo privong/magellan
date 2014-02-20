@@ -38,6 +38,7 @@ if args.week:
     command='SELECT year,week,homefrac,awayfrac,travelfrac from analysis_weekly where WEEK > %i AND YEAR=%i ORDER BY week' % (week-10,year)
   file='latest.png'
 elif args.year:
+  print "Retreiving analyzed weekly data for the current year...\n"
   today=date.today()
   year=(today.isocalendar())[0]
   command='SELECT year,week,homefrac,awayfrac,travelfrac from analysis_weekly where YEAR=%i ORDER BY week' % (year)
@@ -57,10 +58,11 @@ results=numpy.array(recs)
 
 plt.ioff()
 # plot home, away, travel
-plotsym=['ro','go','bo']
+plotsym=['bo','go','ro']
 plotlabel=['Home','Away','Travel']
 for i in range(2,5):
   plt.plot(results[:,1],results[:,i],plotsym[i-2],label=plotlabel[i-2])
+plt.legend(fontsize='x-small',numpoints=1,frameon=True)
 plt.ylim([-0.01,1.1])
 (x1,x2)=plt.xlim()
 plt.xlim(x1-1,x2+1)
