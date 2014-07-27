@@ -7,8 +7,8 @@ Outputs include histograms of time spent each week/month in the above states and
 
 Documentation
 -------------
-README.md - This file.
-magellan.sql - MySQL database structure
+* README.md - This file.
+* magellan.sql - MySQL database structure
 
 Scripts
 -------
