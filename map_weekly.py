@@ -28,11 +28,12 @@ parser.add_argument('week', type=int, default=False, action='store',
 parser.add_argument('year', type=int, default=False, action='store',
                     help='Year to use. If left blank, the current year will \
                          be used.')
+parser.add_argument('-u', '--uniquedist', default=60, action='store',
+                    help='Approximate distance (in km) points must be to be \
+                         considered "unique".')
 args = parse.parse_args()
 
 cursor = magellan.initdb()
-
-UAWAY = 60.     # 'unique' locations are 30 km apart
 
 # set up base URL from Google Static Maps API
 # https://code.google.com/apis/maps/documentation/staticmaps/
@@ -82,7 +83,7 @@ for rec1 in recs:
             tlong = np.mean([awaylocs[i][j][1] for j in range(2)])
             tdist = magellan.GreatCircDist([tlat, tlong], thisloc[0])
             # check for distance
-            if tdist < UAWAY:
+            if tdist < args.u:
                 # within an existing unique location
                 umatch = True
                 awaylocs[i].append(thisloc[0])
