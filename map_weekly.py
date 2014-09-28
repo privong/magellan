@@ -22,10 +22,10 @@ import argparser
 
 parser = argparse.ArgumentParser(description='Generate a map of unique away \
                                  locations.')
-parser.add_argument('week', type=int, default=False, action='store_value',
+parser.add_argument('week', type=int, default=False, action='store',
                     help='Week number to use. If left blank, most recent \
                          week will be used.')
-parser.add_argument('year', type=int, default=False, action='store_value',
+parser.add_argument('year', type=int, default=False, action='store',
                     help='Year to use. If left blank, the current year will \
                          be used.')
 args = parse.parse_args()
