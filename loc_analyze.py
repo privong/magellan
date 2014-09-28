@@ -273,4 +273,4 @@ cursor.execute(command)
 
 # close SQL
 cursor.close()
-# scon.close()
+magellan.closedb()

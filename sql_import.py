@@ -110,7 +110,7 @@ for filename in files:
     infile.close()
 # close SQL
 scur.close()
-# scon.close()
+magellan.closedb()
 
 sys.stdout.write("%i unique records imported from %s. " % (i-d, sys.argv[1]))
 sys.stdout.write("%i duplicate records replaced.\n" % (d))

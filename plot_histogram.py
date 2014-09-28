@@ -88,4 +88,4 @@ plt.savefig('/srv/http/local/location/'+filen, transparent=True)
 
 # close SQL
 cursor.close()
-# scon.close()
+magellan.closedb()

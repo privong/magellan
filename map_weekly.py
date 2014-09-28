@@ -121,4 +121,4 @@ else:
 
 # close SQL
 cursor.close()
-# scon.close()
+magellan.closedb()

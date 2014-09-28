@@ -25,9 +25,17 @@ def initdb():
         Mpw = config.get('Server Config', 'password')
         Mdb = config.get('Server Config', 'db')
     # create a catabase connection
-    scon = _MySQLdb.connect(host=Mserver, user=Muser, passwd=Mpw, db=Mdb)
-    scur = scon.cursor()
+    self.scon = _MySQLdb.connect(host=Mserver, user=Muser, passwd=Mpw, db=Mdb)
+    scur = self.scon.cursor()
     return scur
+
+def closedb():
+    """
+    closedb()
+
+    Gracefully disconnect from the database.
+    """
+    self.scon.close()
 
 
 def GreatCircDist(loc1, loc2):

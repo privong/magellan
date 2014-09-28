@@ -28,3 +28,5 @@ if sys.argv[1] == 'month':
             % (TABLENAME, magellan.yearid(rec[0], rec[1]), rec[0], rec[1])
         cursor.execute(command)
 cursor.close()
+
+magellan.closedb()
