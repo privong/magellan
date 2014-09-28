@@ -17,7 +17,20 @@ import math
 import ConfigParser
 import magellan
 from datetime import date
+import argparse
 
+
+parser = argparse.ArgumentParser(description='Analze store location \
+                                 information.')
+parser.add_argument('-w', '--week', action='store_value', type=int,
+                    default=False, help='Week to analyze (default, uses most \
+                    recent week)')
+parser.add_argument('-m', '--month', action='store_value', type=int,
+                    default=False, help='Month to analyze')
+parser.add_argument('-y', '--year', action='store_value', type=int,
+                    default=False, help='Year. If not given, the current year \
+                    is used.')
+args = parser.parse_args()
 
 cursor = magellan.initdb()
 
