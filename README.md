@@ -12,6 +12,7 @@ Documentation
 
 Scripts
 -------
+* db_update.py  - Migrate to the current version of the magellan database, if you happened to have generated the database prior to mid-2013.
 * gmaps_weekly.py	- Generate a png thumbnail from googlemaps of all "away" locations visited in the last week.
 * loc_analyze.py - Determine if a given location qualifies as "home", "away", or "traveling"
 * plot_histogram.py - Make plots of week totals for the past 10 weeks or the past year.
