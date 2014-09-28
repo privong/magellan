@@ -1,23 +1,18 @@
 # magellan library
 
-import math as _math
-import ConfigParser as _ConfigParser
-import MySQLdb as _MySQLdb
-import sys as _sys
-
 
 # load configuration file and connect to the database
 def initdb():
     # load information from the configuration file
     config = _ConfigParser.RawConfigParser()
     config.read('.magellan')
-    if not(config.get('Server Config', 'server'))
-    or not(config.get('Server Config', 'user'))
-    or not(config.get('Server Config', 'password'))
-    or not(config.get('Server Config', 'db')):
-        _sys.stderr.write('Configuration file error. Please check the
-                          configuration file.\n')
-        _sys.exit(-1)
+    if not(config.get('Server Config', 'server')) or \
+        not(config.get('Server Config', 'user')) or \
+        not(config.get('Server Config', 'password')) or \
+        not(config.get('Server Config', 'db')):
+            _sys.stderr.write('Configuration file error. Please check the \
+                               configuration file.\n')
+            _sys.exit(-1)
     else:
         Mserver = config.get('Server Config', 'server')
         Muser = config.get('Server Config', 'user')
