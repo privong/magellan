@@ -54,45 +54,41 @@ cursor.execute(command)
 # retrieve rows from the database within that timerange.
 recs = cursor.fetchall()
 
-uniqueaway = []
+awaylocs = []
 
-# go through the rows sequentially. First, check if the GPS location puts it
-# within the "home" tolerance specified above. If it is, add that time to the
-# amount spent at "home".
-print "Convering %i records in to unique locations..." % (len(recs))
+# arrange away locations by geographic proximity
+print "Convering %i records into a list of unique locations..." % (len(recs))
 for rec1 in recs:
-    # we're away. see if it's unique
-    umatch = 0
-    if len(uniqueaway) == 0:
-        # we have no unique away locations
+    umatch = False
+    if len(awaylocs) == 0:
         command = 'SELECT lat,lon FROM locations WHERE UTC=\'%s\'' % (rec1[0])
         cursor.execute(command)
         thisloc = cursor.fetchall()
-        uniqueaway = [thisloc[0][0], thisloc[0][1]]
-        mapurl = mapurl + "&markers=color:red|label:A|%f,%f" % \
-                (thisloc[0][0], thisloc[0][1])
+        awaylocs = [[[thisloc[0][0], thisloc[0][1]]]]
     else:
-        # have unique away locations defined, see if they match
-        for i in range(0, int(len(uniqueaway)/2)):
+        for i in range(0, len(awaylocs)):
             command = 'SELECT lat,lon FROM locations WHERE UTC=\'%s\'' % \
                       (rec1[0])
             cursor.execute(command)
             thisloc = cursor.fetchall()
-            # compute distances from that array location
-            tlat = uniqueaway[i]
-            tlong = uniqueaway[i+1]
+            # compute distance of current location from avg matched locations
+            tlat = np.mean([awaylocs[i][j][0] for j in range(2)])
+            tlong = np.mean([awaylocs[i][j][1] for j in range(2)])
             tdist = magellan.GreatCircDist([tlat, tlong], thisloc[0])
             # check for distance
             if tdist < UAWAY:
                 # within an existing unique location
-                umatch = 1
+                umatch = True
+                awaylocs[i].append(thisloc[0])
         if not(umatch):
             # no match, add this location to the unique locations list
-            uniqueaway = numpy.concatenate((uniqueaway,
-                                           [thisloc[0][0], thisloc[0][1]]),
-                                           axis=0)
-            mapurl = mapurl + "&markers=color:red|label:A|%f,%f" % \
-                    (thisloc[0][0], thisloc[0][1])
+            awaylocs.append([[thisloc[0][0], thisloc[0][1]]])
+
+for place in awaylocs:
+    uniqueaway = [np.mean([place[i][0] for i in range(len(place))]),
+                  np.mean([place[i][1] for i in range(len(place))])]
+    mapurl = mapurl + "&markers=color:red|label:A|%f,%f" % \
+            (uniqueaway[0], uniqueaway[1])
 
 mapurl = mapurl + "&sensor=false"
 
