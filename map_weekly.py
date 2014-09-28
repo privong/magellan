@@ -17,7 +17,18 @@ import numpy
 import ConfigParser
 import magellan
 from datetime import date
+import argparser
 
+
+parser = argparse.ArgumentParser(description='Generate a map of unique away \
+                                 locations.')
+parser.add_argument('week', type=int, default=False, action='store',
+                    help='Week number to use. If left blank, most recent \
+                         week will be used.')
+parser.add_argument('year', type=int, default=False, action='store',
+                    help='Year to use. If left blank, the current year will \
+                         be used.')
+args = parse.parse_args()
 
 cursor = magellan.initdb()
 
@@ -30,19 +41,14 @@ mapurl = "http://maps.google.com/maps/api/staticmap?size=800x800&maptype=roadmap
 # process arguments, decide which week and year we are using.
 # how many arguments do we have?
 today = date.today()
-nargs = len(sys.argv)
-if nargs == 1:
-    # use the previous week
+if not(args.week):
     week = (today.isocalendar())[1]-1
+if not(args.year):
     year = (today.isocalendar())[0]
-elif nargs == 2:
-    # use the specified week of the current year
-    week = int(sys.argv[1])
-    year = (today.isocalendar())[0]
-elif nargs > 2:
-    # use the specified week of the specified year. ignore everything else
-    week = int(sys.argv[1])
-    year = int(sys.argv[2])
+
+if week < 1:    # make sure we don't default to nonsense
+    year = year-1
+    week = (date(year, 12, 31).isocalendar())[0]
 
 print "Loading home location for week %i of %i..." % (week, year)
 

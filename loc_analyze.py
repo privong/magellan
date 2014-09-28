@@ -17,7 +17,22 @@ import math
 import ConfigParser
 import magellan
 from datetime import date
+import argparse
 
+
+parser = argparse.ArgumentParser(description='Analze store location \
+                                 information.')
+parser.add_argument('-p', '--period', action='store', type=str default='week',
+                    help='Analysis period. Options: week (default) or month.')
+parser.add_argument('-w', '--week', action='store', type=int,
+                    default=False, help='Week to analyze (default, uses most \
+                    recent week)')
+parser.add_argument('-m', '--month', action='store', type=int,
+                    default=False, help='Month to analyze')
+parser.add_argument('-y', '--year', action='store', type=int,
+                    default=False, help='Year. If not given, the current year \
+                    is used.')
+args = parser.parse_args()
 
 cursor = magellan.initdb()
 
@@ -29,50 +44,21 @@ htime = 0		# home time in minutes
 atime = 0		# away time in minutes
 ttime = 0		# travel time in minutes
 
-# process arguments, decide which week and year we are using.
-# how many arguments do we have?
 today = date.today()
-nargs = len(sys.argv)
-if nargs == 1:
-    # default to week mode, and use the previous week
-    mode = 'week'
+if not(args.w):
     week = (today.isocalendar())[1]-1
+if not(args.m):
+    month = today.month-1
+if not(args.y):
     year = (today.isocalendar())[0]
-if nargs > 1:
-    # we've specified a mode
-    if sys.argv[1] == 'week':
-        mode = 'week'
-        if nargs == 2:
-            week = (today.isocalendar())[1]-1
-            year = (today.isocalendar())[0]
-            if week < 1:
-                # we need to figure out what the last week of the past year was
-                year = year-1
-                week = (date(year, 12, 31).isocalendar())[0]
-        elif nargs == 3:
-            week = int(sys.argv[2])
-            year = (today.isocalendar())[0]
-        elif nargs == 4:
-            week = int(sys.argv[2])
-            year = int(sys.argv[3])
-    elif sys.argv[1] == 'month':
-        mode = 'month'
-        if nargs == 2:
-            month = today.month-1
-            year = (today.isocalendar())[0]
-            if month < 1:
-                month = 12
-                year = year-1
-        elif nargs == 3:
-            month = int(sys.argv[2])
-            year = (today.isocalendar())[0]
-        elif nargs == 4:
-            month = int(sys.argv[2])
-            year = int(sys.argv[3])
+
+if week < 1:    # make sure we don't default to nonsense
+    year = year-1
+    week = (date(year, 12, 31).isocalendar())[0]
 
 # get home location from the 'homeloc' database
 # there should be a better way to select this...
-if mode == 'week':
+if args.p == 'week':
     print "Loading home location for week %i of %i..." % (week, year)
     command = 'SELECT * FROM homeloc where (YEAR(STARTDATE) < %i AND \
               (YEAR(ENDDATE) > %i OR YEAR(ENDDATE)=0000)) OR \
@@ -84,7 +70,7 @@ if mode == 'week':
               (YEAR(ENDDATE)=%i and WEEK(ENDDATE,1)=%i)' % \
               (year, year, year, week, year, year, week, year, week,
                year, week, year, week)
-elif mode == 'month':
+elif args.p == 'month':
     print "Loading home location for month %i of %i..." % (month, year)
     command = 'SELECT * FROM homeloc where (YEAR(STARTDATE) < %i AND \
               (YEAR(ENDDATE) > %i OR YEAR(ENDDATE)=0000)) OR \
@@ -117,7 +103,7 @@ else:
     hradius = (recs[0])[4]
     hlocs = 0
 
-if mode == 'week':
+if args.p == 'week':
     command = 'SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i \
               ORDER by locations.UTC' % (week, year)
     command2 = 'SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i \
@@ -125,7 +111,7 @@ if mode == 'week':
                ((52, year-1), (week-1, year))[week > 1]
     # command3='SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i \
     #          ORDER by locations.UTC' % ((0,year+1),(week+1,year))[week < 53]
-elif mode == 'month':
+elif args.p == 'month':
     command = 'SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i \
               ORDER by locations.UTC' % (month, year)
     command2 = 'SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i \
@@ -171,7 +157,7 @@ for rec1 in recs:
         if hradius == -1:
             # it's all away
             atime += dechrs*60.
-            if mode == 'week':
+            if args.p == 'week':
                 loctype = 'away'
         else:
             # first check if the rec is within the home distance
@@ -249,19 +235,19 @@ for rec1 in recs:
 totaltime = atime+htime+ttime
 
 print "%s recorded a total time of approximately %f hours from %i records." % \
-      (mode, totaltime/60., nrecs)
+      (args.p, totaltime/60., nrecs)
 print "Replaced %i duplicate entries." % (d)
 print "Submitting totals to SQL database.."
 
 # submit to the database
-if mode == 'week':
+if args.p == 'week':
     command = 'REPLACE INTO magellan.analysis_weekly \
               (timeID,year,week,home,homefrac,away,awayfrac,travel, \
               travelfrac) \
               values (%i,%i,%i,%f,%f,%f,%f,%f,%f)' % \
               (magellan.yearid(year, week), year, week, htime,
                htime/totaltime, atime, atime/totaltime, ttime, ttime/totaltime)
-elif mode == 'month':
+elif args.p == 'month':
     command = 'REPLACE INTO magellan.analysis_monthly \
               (timeID,year,month,home,homefrac,away,awayfrac,travel, \
               travelfrac) \
