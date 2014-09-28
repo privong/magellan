@@ -25,8 +25,7 @@ UAWAY = 60.     # 'unique' locations are 30 km apart
 
 # set up base URL from Google Static Maps API
 # https://code.google.com/apis/maps/documentation/staticmaps/
-mapurl = "http://maps.google.com/maps/api/staticmap?size=800x800&\
-         maptype=roadmap"
+mapurl = "http://maps.google.com/maps/api/staticmap?size=800x800&maptype=roadmap"
 
 # process arguments, decide which week and year we are using.
 # how many arguments do we have?
