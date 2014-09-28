@@ -3,6 +3,12 @@
 
 # load configuration file and connect to the database
 def initdb():
+    """
+    initdb()
+
+    Connect to the MySQL server and return an interface to the server
+    """
+
     # load information from the configuration file
     config = _ConfigParser.RawConfigParser()
     config.read('.magellan')
@@ -24,8 +30,12 @@ def initdb():
     return scur
 
 
-# compute the great circle distance using the haversine formula
 def GreatCircDist(loc1, loc2):
+    """
+    GreatCircDist()
+
+    compute the great circle distance using the haversine formula
+    """
     dlat = loc2[0] - loc1[0]
     dlong = loc2[1] - loc2[1]
     rdlat = _math.radians(dlat)
@@ -39,4 +49,9 @@ def GreatCircDist(loc1, loc2):
 
 
 def yearid(year, other):
+    """
+    yearid()
+
+    Generate unique yearIDs by concatenating the year with another value
+    """
     return int(str(year)+str(other).zfill(2))
