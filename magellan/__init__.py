@@ -6,3 +6,4 @@ import MySQLdb as _MySQLdb
 import sys as _sys
 
 from magellan import *
+from magellan._version import __version__
