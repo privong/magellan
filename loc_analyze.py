@@ -20,7 +20,7 @@ from datetime import date
 import argparse
 
 
-parser = argparse.ArgumentParser(description='Analze store location \
+parser = argparse.ArgumentParser(description='Analyze stored location \
                                  information.')
 parser.add_argument('-p', '--period', action='store', type=str default='week',
                     help='Analysis period. Options: week (default) or month.')
