@@ -1,5 +1,10 @@
 # magellan library
 
+import math as _math
+import ConfigParser as _ConfigParser
+import MySQLdb as _MySQLdb
+import sys as _sys
+
 
 # load configuration file and connect to the database
 def initdb():
