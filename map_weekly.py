@@ -9,7 +9,7 @@ import sys
 import time
 import math
 import pycurl
-import numpy
+import numpy as np
 import ConfigParser
 import magellan
 from datetime import date
@@ -27,6 +27,8 @@ parser.add_argument('-y', '--year', type=int, default=False, action='store',
 parser.add_argument('-u', '--uniquedist', default=60, action='store',
                     help='Approximate distance (in km) points must be to be \
                          considered "unique".')
+parser.add_argument('-p', '--plotfile', default=None, action='store',
+                    help='Name of file to save map.')
 args = parser.parse_args()
 
 trinidad = magellan.magellan()
@@ -41,8 +43,12 @@ mapurl = "http://maps.google.com/maps/api/staticmap?size=800x800&maptype=roadmap
 today = date.today()
 if not(args.week):
     week = (today.isocalendar())[1]-1
+else:
+    week = args.week
 if not(args.year):
     year = (today.isocalendar())[0]
+else:
+    year = args.year
 
 if week < 1:    # make sure we don't default to nonsense
     year = year-1
@@ -64,12 +70,7 @@ awaylocs = []
 print "Convering %i records into a list of unique locations..." % (len(recs))
 for rec1 in recs:
     umatch = False
-    if len(awaylocs) == 0:
-        command = 'SELECT lat,lon FROM locations WHERE UTC=\'%s\'' % (rec1[0])
-        cursor.execute(command)
-        thisloc = cursor.fetchall()
-        awaylocs = [[[thisloc[0][0], thisloc[0][1]]]]
-    else:
+    if len(awaylocs) > 1:
         for i in range(0, len(awaylocs)):
             command = 'SELECT lat,lon FROM locations WHERE UTC=\'%s\'' % \
                       (rec1[0])
@@ -87,6 +88,11 @@ for rec1 in recs:
         if not(umatch):
             # no match, add this location to the unique locations list
             awaylocs.append([[thisloc[0][0], thisloc[0][1]]])
+    else:
+        command = 'SELECT lat,lon FROM locations WHERE UTC=\'%s\'' % (rec1[0])
+        cursor.execute(command)
+        thisloc = cursor.fetchall()
+        awaylocs = [[[thisloc[0][0], thisloc[0][1]]]]
 
 for place in awaylocs:
     uniqueaway = [np.mean([place[i][0] for i in range(len(place))]),
@@ -103,7 +109,10 @@ if len(uniqueaway) != 0:
         mapurl = mapurl+'&zoom=10'
 
     if len(mapurl) < 2000:
-        fname = '/srv/http/local/location/%i-%i.png' % (year, week)
+        if args.plotfile is None:
+            fname = '/srv/http/local/location/%i-%i.png' % (year, week)
+        else:
+            fname = args.plotfile
         fp = open(fname, "wb")
 
         curl = pycurl.Curl()
