@@ -9,7 +9,7 @@ Documentation
 -------------
 * README.md - This file.
 * magellan.sql - MySQL database structure
-* [[Autumn 2011 Article in 2600 |2600-Article]], which resulted from my early work on what would become **magellan**
+* [Autumn 2011 Article in 2600](https://github.com/privong/magellan/wiki/2600-Article), which resulted from my early work on what would become **magellan**
 
 Scripts
 -------
