@@ -4,11 +4,6 @@
 #
 # Provide a (weekly/monthly) analysis of Palm Pre tracking information.
 # The information will be retreived from an SQL database
-#
-# USAGE: loc_anaylze.py week/month [week#/month#] [year]
-# week/month must be selected to specify weekly or monthly analysis
-# If neither is specified, the most recent full week/month will be used.
-# If only week/month is specified, the current year is assumed.
 
 import MySQLdb
 import sys

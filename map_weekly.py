@@ -3,10 +3,6 @@
 # gmaps-weekly.py
 #
 # The information will be retreived from an SQL database
-#
-# USAGE: gmaps-weekly.py [week#] [year]
-# If neither is specified, the most recent full week will be used.
-# If only week is specified, the current year is assumed.
 
 import MySQLdb
 import sys
