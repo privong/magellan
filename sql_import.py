@@ -11,7 +11,6 @@ import time
 import sys
 import re
 import ConfigParser
-import gpxpy
 import magellan
 import argparse
 
@@ -31,6 +30,7 @@ d = 0
 for filename in files:
     infile = open(filename, "r")
     if re.search('gpx', filename):
+        import gpxpy
         gpx = gpxpy.parse(infile)
         for track in gpx.tracks:
             for segment in track.segments:
