@@ -21,6 +21,10 @@ parser = argparse.ArgumentParser(description='Generate a map of unique away \
 parser.add_argument('-w', '--week', type=int, default=False, action='store',
                     help='Week number to use. If left blank, most recent \
                          week will be used.')
+parser.add_argument('-m', '--month', type=int, default=None, action='store',
+                    help='Month number to use. If omitted, week default will \
+                          be used. Note that the week switch will override \
+                          this.')
 parser.add_argument('-y', '--year', type=int, default=False, action='store',
                     help='Year to use. If left blank, the current year will \
                          be used.')
@@ -41,10 +45,15 @@ mapurl = "http://maps.google.com/maps/api/staticmap?size=800x800&maptype=roadmap
 # process arguments, decide which week and year we are using.
 # how many arguments do we have?
 today = date.today()
+mode = 'week'
+if args.month is not None:
+    month = args.month
+    mode = 'month'
 if not(args.week):
     week = (today.isocalendar())[1]-1
 else:
     week = args.week
+    mode = 'week'
 if not(args.year):
     year = (today.isocalendar())[0]
 else:
@@ -54,12 +63,18 @@ if week < 1:    # make sure we don't default to nonsense
     year = year-1
     week = (date(year, 12, 31).isocalendar())[0]
 
-print "Loading home location for week %i of %i..." % (week, year)
-
-command = 'SELECT * FROM locations_spec WHERE WEEK(UTC,1)=%i AND \
-          YEAR(UTC)=%i AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
-          (week, year)
-cursor.execute(command)
+if mode == 'week':
+    print "Loading home location for week %i of %i..." % (week, year)
+    command = 'SELECT * FROM locations_spec WHERE WEEK(UTC,1)=%i AND \
+               YEAR(UTC)=%i AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
+              (week, year)
+    cursor.execute(command)
+elif mode == 'month':
+    print "Loading home location for month %i of %i..." % (month, year)
+    command = 'SELECT * FROM locations_spec WHERE MONTH(UTC)=%i AND \
+               YEAR(UTC)=%i AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
+              (month, year)
+    cursor.execute(command)
 
 # retrieve rows from the database within that timerange.
 recs = cursor.fetchall()
@@ -70,29 +85,29 @@ awaylocs = []
 print "Convering %i records into a list of unique locations..." % (len(recs))
 for rec1 in recs:
     umatch = False
-    if len(awaylocs) > 1:
+    if len(awaylocs) == 0:
+        command = 'SELECT lat,lon FROM locations WHERE UTC=\'%s\'' % (rec1[0])
+        cursor.execute(command)
+        thisloc = cursor.fetchall()
+        awaylocs = [[[thisloc[0][0], thisloc[0][1]]]]
+    else:
         for i in range(0, len(awaylocs)):
             command = 'SELECT lat,lon FROM locations WHERE UTC=\'%s\'' % \
                       (rec1[0])
             cursor.execute(command)
             thisloc = cursor.fetchall()
             # compute distance of current location from avg matched locations
-            tlat = np.mean([awaylocs[i][j][0] for j in range(2)])
-            tlong = np.mean([awaylocs[i][j][1] for j in range(2)])
+            tlat = np.mean([awaylocs[i][j][0] for j in range(len(awaylocs[i]))])
+            tlong = np.mean([awaylocs[i][j][1] for j in range(len(awaylocs[i]))])
             tdist = magellan.GreatCircDist([tlat, tlong], thisloc[0])
             # check for distance
             if tdist < args.uniquedist:
                 # within an existing unique location
                 umatch = True
-                awaylocs[i].append(thisloc[0])
+                awaylocs[i].append([thisloc[0][0], thisloc[0][1]])
         if not(umatch):
             # no match, add this location to the unique locations list
             awaylocs.append([[thisloc[0][0], thisloc[0][1]]])
-    else:
-        command = 'SELECT lat,lon FROM locations WHERE UTC=\'%s\'' % (rec1[0])
-        cursor.execute(command)
-        thisloc = cursor.fetchall()
-        awaylocs = [[[thisloc[0][0], thisloc[0][1]]]]
 
 for place in awaylocs:
     uniqueaway = [np.mean([place[i][0] for i in range(len(place))]),
