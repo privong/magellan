@@ -40,11 +40,11 @@ atime = 0		# away time in minutes
 ttime = 0		# travel time in minutes
 
 today = date.today()
-if not(args.w):
+if not(args.week):
     week = (today.isocalendar())[1]-1
-if not(args.m):
+if not(args.month):
     month = today.month-1
-if not(args.y):
+if not(args.year):
     year = (today.isocalendar())[0]
 
 if week < 1:    # make sure we don't default to nonsense
@@ -53,7 +53,7 @@ if week < 1:    # make sure we don't default to nonsense
 
 # get home location from the 'homeloc' database
 # there should be a better way to select this...
-if args.p == 'week':
+if args.period == 'week':
     print "Loading home location for week %i of %i..." % (week, year)
     command = 'SELECT * FROM homeloc WHERE \
              (YEAR(STARTDATE) <= %i AND WEEK(STARTDATE,1) <= %i AND \
@@ -63,7 +63,7 @@ if args.p == 'week':
              (YEAR(STARTDATE) <= %i AND WEEK(STARTDATE,1) <= %i AND\
               YEAR(ENDDATE) > %i)' \
              % (year, week, year, week, year, year, week, year, week, year)
-elif args.p == 'month':
+elif args.period == 'month':
     print "Loading home location for month %i of %i..." % (month, year)
     command = 'SELECT * FROM homeloc WHERE \
              (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE,1) <= %i AND \
@@ -94,7 +94,7 @@ else:
     hradius = (recs[0])[4]
     hlocs = 0
 
-if args.p == 'week':
+if args.period == 'week':
     command = 'SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i \
               ORDER by locations.UTC' % (week, year)
     command2 = 'SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i \
@@ -102,7 +102,7 @@ if args.p == 'week':
                ((52, year-1), (week-1, year))[week > 1]
     # command3='SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i \
     #          ORDER by locations.UTC' % ((0,year+1),(week+1,year))[week < 53]
-elif args.p == 'month':
+elif args.period == 'month':
     command = 'SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i \
               ORDER by locations.UTC' % (month, year)
     command2 = 'SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i \
@@ -148,7 +148,7 @@ for rec1 in recs:
         if hradius == -1:
             # it's all away
             atime += dechrs*60.
-            if args.p == 'week':
+            if args.period == 'week':
                 loctype = 'away'
         else:
             # first check if the rec is within the home distance
@@ -226,19 +226,19 @@ for rec1 in recs:
 totaltime = atime+htime+ttime
 
 print "%s recorded a total time of approximately %f hours from %i records." % \
-      (args.p, totaltime/60., nrecs)
+      (args.period, totaltime/60., nrecs)
 print "Replaced %i duplicate entries." % (d)
 print "Submitting totals to SQL database.."
 
 # submit to the database
-if args.p == 'week':
+if args.period == 'week':
     command = 'REPLACE INTO magellan.analysis_weekly \
               (timeID,year,week,home,homefrac,away,awayfrac,travel, \
               travelfrac) \
               values (%i,%i,%i,%f,%f,%f,%f,%f,%f)' % \
               (magellan.yearid(year, week), year, week, htime,
                htime/totaltime, atime, atime/totaltime, ttime, ttime/totaltime)
-elif args.p == 'month':
+elif args.period == 'month':
     command = 'REPLACE INTO magellan.analysis_monthly \
               (timeID,year,month,home,homefrac,away,awayfrac,travel, \
               travelfrac) \
