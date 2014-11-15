@@ -60,6 +60,14 @@ if week < 1:    # make sure we don't default to nonsense
 # there should be a better way to select this...
 if args.p == 'week':
     print "Loading home location for week %i of %i..." % (week, year)
+    command = 'SELECT * FROM homeloc WHERE \
+             (YEAR(STARTDATE) <= %i AND WEEK(STARTDATE,1) <= %i AND \
+              YEAR(ENDDATE) >= %i AND WEEK(ENDDATE,1) >= %i) OR \
+             (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) >= %i AND \
+              WEEK(ENDDATE,1) >= %i) OR \
+             (YEAR(STARTDATE) <= %i AND WEEK(STARTDATE,1) <= %i AND\
+              YEAR(ENDDATE) > %i)' \
+             % (year, week, year, week, year, year, week, year, week, year)
     command = 'SELECT * FROM homeloc where (YEAR(STARTDATE) < %i AND \
               (YEAR(ENDDATE) > %i OR YEAR(ENDDATE)=0000)) OR \
               (YEAR(STARTDATE)=%i AND WEEK(STARTDATE,1)<%i AND \
