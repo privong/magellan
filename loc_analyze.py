@@ -29,8 +29,7 @@ parser.add_argument('-y', '--year', action='store', type=int,
                     is used.')
 args = parser.parse_args()
 
-trindad = magellan.magellan()
-
+trinidad = magellan.magellan()
 cursor = trinidad.initdb()
 
 TABLENAME = "locations_spec"
@@ -44,10 +43,16 @@ ttime = 0		# travel time in minutes
 today = date.today()
 if not(args.week):
     week = (today.isocalendar())[1]-1
+else:
+    week = args.week
 if not(args.month):
     month = today.month-1
+else:
+    month = args.month
 if not(args.year):
     year = (today.isocalendar())[0]
+else:
+    year = args.year
 
 if week < 1:    # make sure we don't default to nonsense
     year = year-1
@@ -154,7 +159,7 @@ for rec1 in recs:
                 loctype = 'away'
         else:
             # first check if the rec is within the home distance
-            dist = trinidad.GreatCircDist([hlat, hlong], rec0[1:])
+            dist = magellan.GreatCircDist([hlat, hlong], rec0[1:])
             if dist > hradius:
                 # we're outside the home radius. chock this up as away
                 # atime+=dechrs*60.
@@ -171,7 +176,7 @@ for rec1 in recs:
             dechrs = tdiff.days*24+tdiff.seconds/3600.
             if dist > hradius:
                 # we're outside the home radius. see if we're traveling or not
-                travdist = trinidad.GreatCircDist(rec1[1:], rec0[1:])
+                travdist = magellan.GreatCircDist(rec1[1:], rec0[1:])
                 # now compute the average speed, see if we're traveling or not
                 speed = travdist/dechrs
                 msspeed = speed/3.6
@@ -191,7 +196,7 @@ for rec1 in recs:
                 loctype = 'home'
         else:
             # no home radius. see if we're traveling or not
-            travdist = trinidad.GreatCircDist(rec1[1:], rec0[1:])
+            travdist = magellan.GreatCircDist(rec1[1:], rec0[1:])
             # now compute the average speed, see if we're traveling or not
             speed = travdist/dechrs     # this is in km/hr
             msspeed = speed/3.6
@@ -238,14 +243,14 @@ if args.period == 'week':
               (timeID,year,week,home,homefrac,away,awayfrac,travel, \
               travelfrac) \
               values (%i,%i,%i,%f,%f,%f,%f,%f,%f)' % \
-              (trinidad.yearid(year, week), year, week, htime,
+              (magellan.yearid(year, week), year, week, htime,
                htime/totaltime, atime, atime/totaltime, ttime, ttime/totaltime)
 elif args.period == 'month':
     command = 'REPLACE INTO magellan.analysis_monthly \
               (timeID,year,month,home,homefrac,away,awayfrac,travel, \
               travelfrac) \
               values (%i,%i,%i,%f,%f,%f,%f,%f,%f)' % \
-              (trinidad.yearid(year, month), year, month, htime,
+              (magellan.yearid(year, month), year, month, htime,
                htime/totaltime, atime, atime/totaltime, ttime, ttime/totaltime)
 
 cursor.execute(command)

@@ -78,7 +78,7 @@ for rec1 in recs:
             # compute distance of current location from avg matched locations
             tlat = np.mean([awaylocs[i][j][0] for j in range(2)])
             tlong = np.mean([awaylocs[i][j][1] for j in range(2)])
-            tdist = trinidad.GreatCircDist([tlat, tlong], thisloc[0])
+            tdist = magellan.GreatCircDist([tlat, tlong], thisloc[0])
             # check for distance
             if tdist < args.uniquedist:
                 # within an existing unique location
