@@ -68,16 +68,6 @@ if args.p == 'week':
              (YEAR(STARTDATE) <= %i AND WEEK(STARTDATE,1) <= %i AND\
               YEAR(ENDDATE) > %i)' \
              % (year, week, year, week, year, year, week, year, week, year)
-    command = 'SELECT * FROM homeloc where (YEAR(STARTDATE) < %i AND \
-              (YEAR(ENDDATE) > %i OR YEAR(ENDDATE)=0000)) OR \
-              (YEAR(STARTDATE)=%i AND WEEK(STARTDATE,1)<%i AND \
-              (YEAR(ENDDATE)>%i or YEAR(ENDDATE)=0000)) OR \
-              (YEAR(STARTDATE)=%i AND WEEK(STARTDATE,1)<%i AND \
-              YEAR(ENDDATE)=%i AND WEEK(ENDDATE,1)>%i) OR \
-              (YEAR(STARTDATE)=%i and WEEK(STARTDATE,1)=%i) OR \
-              (YEAR(ENDDATE)=%i and WEEK(ENDDATE,1)=%i)' % \
-              (year, year, year, week, year, year, week, year, week,
-               year, week, year, week)
 elif args.p == 'month':
     print "Loading home location for month %i of %i..." % (month, year)
     command = 'SELECT * FROM homeloc where (YEAR(STARTDATE) < %i AND \
