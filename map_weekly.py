@@ -13,7 +13,7 @@ import numpy
 import ConfigParser
 import magellan
 from datetime import date
-import argparser
+import argparse
 
 
 parser = argparse.ArgumentParser(description='Generate a map of unique away \
@@ -27,7 +27,7 @@ parser.add_argument('-y', '--year', type=int, default=False, action='store',
 parser.add_argument('-u', '--uniquedist', default=60, action='store',
                     help='Approximate distance (in km) points must be to be \
                          considered "unique".')
-args = parse.parse_args()
+args = parser.parse_args()
 
 trinidad = magellan.magellan()
 cursor = trinidad.initdb()
