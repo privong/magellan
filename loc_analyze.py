@@ -17,7 +17,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Analyze stored location \
                                  information.')
-parser.add_argument('-p', '--period', action='store', type=str default='week',
+parser.add_argument('-p', '--period', action='store', type=str, default='week',
                     help='Analysis period. Options: week (default) or month.')
 parser.add_argument('-w', '--week', action='store', type=int,
                     default=False, help='Week to analyze (default, uses most \
