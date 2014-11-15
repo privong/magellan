@@ -20,10 +20,12 @@ import magellan
 
 parser = argparse.ArgumentParser(description='Plot information on \
             home/away/travel based on different time intervals.')
-parser.add_argument('-week', action='store_true', default=False,
+parser.add_argument('-w', '--week', action='store_true', default=False,
                     help='Plot analyitics for the past 10 weeks.')
-parser.add_argument('-year', action='store_true', default=False,
+parser.add_argument('-y', '--year', action='store_true', default=False,
                     help='Plot analyitics for the current year.')
+parser.add_argument('--plotfile', default=None,
+                    help='Location to save figure.')
 args = parser.parse_args()
 
 TABLENAME = "analyze_weekly"
@@ -85,7 +87,11 @@ plt.xlim(x1-1, x2+1)
 plt.ylabel('Fraction')
 plt.xlabel('Week Number')
 plt.minorticks_on()
-plt.savefig('/srv/http/local/location/'+filen, transparent=True)
+
+if args.plotfile is None:
+    plt.savefig('/srv/http/local/location/'+filen, transparent=True)
+else:
+    plt.savefig(args.plotfile, transparent=True)
 
 # close SQL
 cursor.close()

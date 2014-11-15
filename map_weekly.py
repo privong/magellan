@@ -18,10 +18,10 @@ import argparser
 
 parser = argparse.ArgumentParser(description='Generate a map of unique away \
                                  locations.')
-parser.add_argument('week', type=int, default=False, action='store',
+parser.add_argument('-w', '--week', type=int, default=False, action='store',
                     help='Week number to use. If left blank, most recent \
                          week will be used.')
-parser.add_argument('year', type=int, default=False, action='store',
+parser.add_argument('-y', '--year', type=int, default=False, action='store',
                     help='Year to use. If left blank, the current year will \
                          be used.')
 parser.add_argument('-u', '--uniquedist', default=60, action='store',
@@ -80,7 +80,7 @@ for rec1 in recs:
             tlong = np.mean([awaylocs[i][j][1] for j in range(2)])
             tdist = trinidad.GreatCircDist([tlat, tlong], thisloc[0])
             # check for distance
-            if tdist < args.u:
+            if tdist < args.uniquedist:
                 # within an existing unique location
                 umatch = True
                 awaylocs[i].append(thisloc[0])
