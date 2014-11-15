@@ -24,7 +24,7 @@ parser.add_argument('-w', '--week', action='store_true', default=False,
                     help='Plot analyitics for the past 10 weeks.')
 parser.add_argument('-y', '--year', action='store_true', default=False,
                     help='Plot analyitics for the current year.')
-parser.add_argument('--plotfile', default=None,
+parser.add_argument('-p', '--plotfile', default=None,
                     help='Location to save figure.')
 args = parser.parse_args()
 
