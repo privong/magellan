@@ -21,7 +21,8 @@ parser.add_argument('files', type=str, default=False, nargs='+',
                     help='File(s) to import')
 args = parser.parse_args()
 
-scur = magellan.initdb()
+trinidad = magellan.magellan()
+scur = trinidad.initdb()
 
 TABLENAME = "locations"
 
@@ -110,7 +111,7 @@ for filename in files:
     infile.close()
 # close SQL
 scur.close()
-magellan.closedb()
+trinidad.closedb()
 
 sys.stdout.write("%i unique records imported from %s. " % (i-d, sys.argv[1]))
 sys.stdout.write("%i duplicate records replaced.\n" % (d))

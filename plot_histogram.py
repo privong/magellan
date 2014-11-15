@@ -18,8 +18,6 @@ from datetime import date
 import magellan
 
 
-cursor = magellan.initdb()
-
 parser = argparse.ArgumentParser(description='Plot information on \
             home/away/travel based on different time intervals.')
 parser.add_argument('-week', action='store_true', default=False,
@@ -29,6 +27,9 @@ parser.add_argument('-year', action='store_true', default=False,
 args = parser.parse_args()
 
 TABLENAME = "analyze_weekly"
+
+trinidad = magellan.magellan()
+cursor = trinidad.initdb()
 
 if args.week:
     print "Retreiving analyzed weekly data for the past 10 weeks...\n"
@@ -88,4 +89,4 @@ plt.savefig('/srv/http/local/location/'+filen, transparent=True)
 
 # close SQL
 cursor.close()
-magellan.closedb()
+trinidad.closedb()

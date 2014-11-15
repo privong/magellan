@@ -29,7 +29,8 @@ parser.add_argument('-u', '--uniquedist', default=60, action='store',
                          considered "unique".')
 args = parse.parse_args()
 
-cursor = magellan.initdb()
+trinidad = magellan.magellan()
+cursor = trinidad.initdb()
 
 # set up base URL from Google Static Maps API
 # https://code.google.com/apis/maps/documentation/staticmaps/
@@ -77,7 +78,7 @@ for rec1 in recs:
             # compute distance of current location from avg matched locations
             tlat = np.mean([awaylocs[i][j][0] for j in range(2)])
             tlong = np.mean([awaylocs[i][j][1] for j in range(2)])
-            tdist = magellan.GreatCircDist([tlat, tlong], thisloc[0])
+            tdist = trinidad.GreatCircDist([tlat, tlong], thisloc[0])
             # check for distance
             if tdist < args.u:
                 # within an existing unique location
@@ -119,4 +120,4 @@ else:
 
 # close SQL
 cursor.close()
-magellan.closedb()
+trinidad.closedb()
