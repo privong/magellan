@@ -1,6 +1,7 @@
 #!/usr/bin/python2
 # populate the new timeID field in the analysis tables, based on the existing
 # year and week/month columns.
+
 import MySQLdb
 import sys
 import time
