@@ -70,16 +70,14 @@ if args.p == 'week':
              % (year, week, year, week, year, year, week, year, week, year)
 elif args.p == 'month':
     print "Loading home location for month %i of %i..." % (month, year)
-    command = 'SELECT * FROM homeloc where (YEAR(STARTDATE) < %i AND \
-              (YEAR(ENDDATE) > %i OR YEAR(ENDDATE)=0000)) OR \
-              (YEAR(STARTDATE)=%i AND MONTH(STARTDATE)<%i AND \
-              (YEAR(ENDDATE)>%i or YEAR(ENDDATE)=0000)) OR \
-              (YEAR(STARTDATE)=%i AND MONTH(STARTDATE)<%i AND \
-              YEAR(ENDDATE)=%i AND MONTH(ENDDATE)>%i) OR \
-              (YEAR(ENDDATE)=%i and MONTH(ENDDATE)=%i) OR \
-              (YEAR(STARTDATE)=%i AND MONTH(STARTDATE)=%i)' % \
-              (year, year, year, month, year, year, month, year, month,
-               year, month, year, month)
+    command = 'SELECT * FROM homeloc WHERE \
+             (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE,1) <= %i AND \
+              YEAR(ENDDATE) >= %i AND MONTH(ENDDATE,1) >= %i) OR \
+             (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) >= %i AND \
+              MONTH(ENDDATE,1) >= %i) OR \
+             (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE,1) <= %i AND\
+              YEAR(ENDDATE) > %i)' \
+             % (year, month, year, month, year, year, month, year, month, year)
 cursor.execute(command)
 recs = cursor.fetchall()
 
