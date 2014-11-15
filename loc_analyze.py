@@ -64,22 +64,37 @@ if args.period == 'week':
     print "Loading home location for week %i of %i..." % (week, year)
     command = 'SELECT * FROM homeloc WHERE \
              (YEAR(STARTDATE) <= %i AND WEEK(STARTDATE,1) <= %i AND \
+              YEAR(ENDDATE) >= %i) OR \
+             (YEAR(STARTDATE) <= %i AND WEEK(STARTDATE,1) <= %i AND \
               YEAR(ENDDATE) >= %i AND WEEK(ENDDATE,1) >= %i) OR \
+             (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) > %i) OR \
              (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) >= %i AND \
               WEEK(ENDDATE,1) >= %i) OR \
              (YEAR(STARTDATE) <= %i AND WEEK(STARTDATE,1) <= %i AND\
               YEAR(ENDDATE) > %i)' \
-             % (year, week, year, week, year, year, week, year, week, year)
+             % (year, week, year,
+                year, week, year, week,
+                year, year,
+                year, year, week,
+                year, week, year)
 elif args.period == 'month':
     print "Loading home location for month %i of %i..." % (month, year)
     command = 'SELECT * FROM homeloc WHERE \
-             (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE,1) <= %i AND \
-              YEAR(ENDDATE) >= %i AND MONTH(ENDDATE,1) >= %i) OR \
+             (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE) <= %i AND \
+              YEAR(ENDDATE) > %i) OR \
+             (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE) <= %i AND \
+              YEAR(ENDDATE) = %i AND MONTH(ENDDATE) >= %i) OR \
+             (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) > %i) OR \
              (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) >= %i AND \
-              MONTH(ENDDATE,1) >= %i) OR \
-             (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE,1) <= %i AND\
+              MONTH(ENDDATE) >= %i) OR \
+             (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE) <= %i AND\
               YEAR(ENDDATE) > %i)' \
-             % (year, month, year, month, year, year, month, year, month, year)
+             % (year, month, year,
+                year, month, year, month,
+                year, year,
+                year, year, month,
+                year, month, year)
+    print command
 cursor.execute(command)
 recs = cursor.fetchall()
 
@@ -171,7 +186,7 @@ for rec1 in recs:
     else:
         if hradius != -1:
             # first check if the rec is within the home distance
-            dist = trindad.GreatCircDist([hlat, hlong], rec1[1:])
+            dist = magellan.GreatCircDist([hlat, hlong], rec1[1:])
             tdiff = rec1[0]-rec0[0]
             dechrs = tdiff.days*24+tdiff.seconds/3600.
             if dist > hradius:
