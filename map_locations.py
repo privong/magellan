@@ -135,18 +135,19 @@ elif args.service == 'osm':
              (args.imgsize, args.imgsize)
     for loc in uniqueaway:
         mapurl = mapurl + "%f,%f,lightblue|" % (loc[0], loc[1])
-    mapurl = mapurl[:-1]
-    mapurl = mapurl + "&center=%f,%f" % \
-             (np.mean(np.array(uniqueaway)[:, 0]),
-              np.mean(np.array(uniqueaway)[:, 1]))
-    angdists = []
+    mapurl = mapurl[:-1]    # remove trailing '|' to avoid an extra marker
+    maxdist = [0]
     for loc in uniqueaway:  # compute the distance between pairs of away pts
         for loc2 in uniqueaway:
-            angdists.append(np.sqrt((loc[0] - loc2[0])**2 +
-                                    (loc[1] - loc2[1])**2))
+            newdist = (np.sqrt((loc[0] - loc2[0])**2 +
+                       (loc[1] - loc2[1])**2))
+            if newdist > maxdist[0]:
+                maxdist = [newdist, [(loc[0] + loc2[0]) / 2., 
+                                     (loc[1] + loc2[1]) / 2.]]
+    mapurl = mapurl + "&center=%f,%f" % (maxdist[1][0], maxdist[1][1])
     mapurl = mapurl + "&zoom=%i" % \
              (np.floor(np.log((args.imgsize / 256.) * 
-                              360. / np.max(angdists)) / np.log(2)))
+                              360. / maxdist[0]) / np.log(2)))
 
 if len(uniqueaway) != 0:
     print "Requesting map of %i unique locations..." % \
