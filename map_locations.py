@@ -31,11 +31,11 @@ parser.add_argument('-y', '--year', type=int, default=False, action='store',
 parser.add_argument('-u', '--uniquedist', default=60, action='store',
                     help='Approximate distance (in km) points must be to be \
                          considered "unique".')
-parser.add_argument('-s', '--service', default='google', action='store',
+parser.add_argument('-s', '--service', default='osm', action='store',
                     choices=['google', 'osm'],
                     help='Mapping service to use for generating static maps. \
-                          Defaults to \'google\'. Other option: \'osm\' for \
-                          OpenStreetMap.')
+                          Defaults to \'osm\'. Other option: \'google\' for \
+                          Google Maps.')
 parser.add_argument('-i', '--imgsize', default=800, action='store', type=int,
                     help='Number of pixels on a side for the maps image.')
 parser.add_argument('-p', '--plotfile', default=None, action='store',
