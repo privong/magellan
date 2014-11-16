@@ -54,10 +54,9 @@ def GreatCircDist(loc1, loc2):
     dlong = loc2[1] - loc1[1]
     rdlat = _math.radians(dlat)
     rdlong = _math.radians(dlong)
-    ha = _math.sin(rdlat/2) * _math.sin(rdlat/2) + \
+    ha = _math.sin(rdlat/2)**2 + \
         _math.cos(_math.radians(loc1[1])) * \
-        _math.cos(_math.radians(loc1[1])) * _math.sin(rdlong/2) * \
-        _math.sin(rdlong/2)
+        _math.cos(_math.radians(loc2[1])) * _math.sin(rdlong/2)**2
     hc = 2 * _math.atan2(_math.sqrt(ha), _math.sqrt(1-ha))
     return 6378.1 * hc
 
