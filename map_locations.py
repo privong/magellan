@@ -18,16 +18,17 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Generate a map of unique away \
                                  locations.')
-parser.add_argument('-w', '--week', type=int, default=False, action='store',
+parser.add_argument('-w', '--week', type=int, default=None, action='store',
                     help='Week number to use. If left blank, most recent \
                          week will be used.')
 parser.add_argument('-m', '--month', type=int, default=None, action='store',
                     help='Month number to use. If omitted, week default will \
                           be used. Note that the week switch will override \
                           this.')
-parser.add_argument('-y', '--year', type=int, default=False, action='store',
+parser.add_argument('-y', '--year', type=int, default=None, action='store',
                     help='Year to use. If left blank, the current year will \
-                         be used.')
+                         be used. If this is the only item specified, a map \
+                         will be made of all away points during that year.')
 parser.add_argument('-u', '--uniquedist', default=60, action='store',
                     help='Approximate distance (in km) points must be to be \
                          considered "unique".')
@@ -52,15 +53,17 @@ mode = 'week'
 if args.month is not None:
     month = args.month
     mode = 'month'
-if not(args.week):
+if args.week is None:
     week = (today.isocalendar())[1]-1
 else:
     week = args.week
     mode = 'week'
-if not(args.year):
+if args.year is None:
     year = (today.isocalendar())[0]
 else:
     year = args.year
+    if args.month is None and args.week is None:
+        mode = 'year'
 
 if week < 1:    # make sure we don't default to nonsense
     year = year-1
@@ -71,13 +74,17 @@ if mode == 'week':
     command = 'SELECT * FROM locations_spec WHERE WEEK(UTC,1)=%i AND \
                YEAR(UTC)=%i AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
               (week, year)
-    cursor.execute(command)
 elif mode == 'month':
     print "Loading home location for month %i of %i..." % (month, year)
     command = 'SELECT * FROM locations_spec WHERE MONTH(UTC)=%i AND \
                YEAR(UTC)=%i AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
               (month, year)
-    cursor.execute(command)
+elif mode == 'year':
+    print "Loading home location for %i..." % (year)
+    command = 'SELECT * FROM locations_spec WHERE YEAR(UTC)=%i \
+               AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
+              (year)
+cursor.execute(command)
 
 # retrieve rows from the database within that timerange.
 recs = cursor.fetchall()
@@ -119,22 +126,25 @@ for place in awaylocs[1:]:
     #        (tempaway[0], tempaway[1])
     uniqueaway.append(tempaway)
 
-#mapurl = mapurl + "&sensor=false"
-
+naway = 1
 if args.service == 'google':
     # https://code.google.com/apis/maps/documentation/staticmaps/
     mapurl = "http://maps.google.com/maps/api/staticmap?size=%ix%i&maptype=roadmap" % \
              (args.imgsize, args.imgsize)
     for loc in uniqueaway:
-        mapurl = mapurl + "&markers=color:red|label:A|%f,%f" % (loc[0], loc[1])
+        mapurl = mapurl + "&markers=color:red|label:%i|%f,%f" % \
+                          (naway, loc[0], loc[1])
+        naway += 1
     if len(uniqueaway) == 2:
         mapurl = mapurl+'&zoom=10'
+    mapurl = mapurl + "&sensor=false"
 elif args.service == 'osm':
     # see http://staticmap.openstreetmap.de/
     mapurl = "http://staticmap.openstreetmap.de/staticmap.php?maptype=osmarenderer&size=%ix%i&markers=" % \
              (args.imgsize, args.imgsize)
     for loc in uniqueaway:
-        mapurl = mapurl + "%f,%f,lightblue|" % (loc[0], loc[1])
+        mapurl = mapurl + "%f,%f,lightblue%i|" % (loc[0], loc[1], naway)
+        naway += 1
     mapurl = mapurl[:-1]    # remove trailing '|' to avoid an extra marker
     maxdist = [0]
     for loc in uniqueaway:  # compute the distance between pairs of away pts
