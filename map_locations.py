@@ -79,47 +79,48 @@ elif mode == 'month':
 # retrieve rows from the database within that timerange.
 recs = cursor.fetchall()
 
-awaylocs = []
-
 # arrange away locations by geographic proximity
 print "Convering %i records into a list of unique locations..." % (len(recs))
-for rec1 in recs:
+command = 'SELECT lat,lon FROM locations WHERE UTC=\'%s\'' % (recs[0][0])
+cursor.execute(command)
+thisloc = cursor.fetchall()
+awaylocs = [[[thisloc[0][0], thisloc[0][1]]]]
+for rec1 in recs[1:]:
     umatch = False
-    if len(awaylocs) == 0:
-        command = 'SELECT lat,lon FROM locations WHERE UTC=\'%s\'' % (rec1[0])
+    for i in range(0, np.array(awaylocs).shape[0]):
+        command = 'SELECT lat,lon FROM locations WHERE UTC=\'%s\'' % \
+                  (rec1[0])
         cursor.execute(command)
         thisloc = cursor.fetchall()
-        awaylocs = [[[thisloc[0][0], thisloc[0][1]]]]
-    else:
-        for i in range(0, len(awaylocs)):
-            command = 'SELECT lat,lon FROM locations WHERE UTC=\'%s\'' % \
-                      (rec1[0])
-            cursor.execute(command)
-            thisloc = cursor.fetchall()
-            # compute distance of current location from avg matched locations
-            tlat = np.mean([awaylocs[i][j][0] for j in range(len(awaylocs[i]))])
-            tlong = np.mean([awaylocs[i][j][1] for j in range(len(awaylocs[i]))])
-            tdist = magellan.GreatCircDist([tlat, tlong], thisloc[0])
-            # check for distance
-            if tdist < args.uniquedist:
-                # within an existing unique location
-                umatch = True
-                awaylocs[i].append([thisloc[0][0], thisloc[0][1]])
-        if not(umatch):
-            # no match, add this location to the unique locations list
-            awaylocs.append([[thisloc[0][0], thisloc[0][1]]])
+        # compute distance of current location from avg matched locations
+        tlat = np.mean([awaylocs[i][j][0] for j in range(len(awaylocs[i]))])
+        tlong = np.mean([awaylocs[i][j][1] for j in range(len(awaylocs[i]))])
+        tdist = magellan.GreatCircDist([tlat, tlong], thisloc[0])
+        # check for distance
+        if tdist < args.uniquedist:
+            # within an existing unique location
+            umatch = True
+            awaylocs[i].append([thisloc[0][0], thisloc[0][1]])
+    if not(umatch):
+        # no match, add this location to the unique locations list
+        awaylocs.append([[thisloc[0][0], thisloc[0][1]]])
 
-for place in awaylocs:
-    uniqueaway = [np.mean([place[i][0] for i in range(len(place))]),
+uniqueaway = [[np.mean([awaylocs[0][0][0] for i in range(len(awaylocs[0]))]),
+              np.mean([awaylocs[0][0][1] for i in range(len(awaylocs[0]))])]]
+mapurl = mapurl + "&markers=color:red|label:A|%f,%f" % \
+         (uniqueaway[0][0], uniqueaway[0][1])
+for place in awaylocs[1:]:
+    tempaway = [np.mean([place[i][0] for i in range(len(place))]),
                   np.mean([place[i][1] for i in range(len(place))])]
     mapurl = mapurl + "&markers=color:red|label:A|%f,%f" % \
-            (uniqueaway[0], uniqueaway[1])
+            (tempaway[0], tempaway[1])
+    uniqueaway.append(tempaway)
 
 mapurl = mapurl + "&sensor=false"
 
 if len(uniqueaway) != 0:
     print "Requesting google maps file of %i unique locations..." % \
-          (len(uniqueaway)/2)
+          (len(uniqueaway))
     if len(uniqueaway) == 2:
         mapurl = mapurl+'&zoom=10'
 
