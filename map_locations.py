@@ -31,16 +31,17 @@ parser.add_argument('-y', '--year', type=int, default=False, action='store',
 parser.add_argument('-u', '--uniquedist', default=60, action='store',
                     help='Approximate distance (in km) points must be to be \
                          considered "unique".')
+parser.add_argument('-s', '--service', default='google', action='store',
+                    choices=['google', 'osm'],
+                    help='Mapping service to use for generating static maps. \
+                          Defaults to \'google\'. Other option: \'osm\' for \
+                          OpenStreetMap.')
 parser.add_argument('-p', '--plotfile', default=None, action='store',
                     help='Name of file to save map.')
 args = parser.parse_args()
 
 trinidad = magellan.magellan()
 cursor = trinidad.initdb()
-
-# set up base URL from Google Static Maps API
-# https://code.google.com/apis/maps/documentation/staticmaps/
-mapurl = "http://maps.google.com/maps/api/staticmap?size=800x800&maptype=roadmap"
 
 # process arguments, decide which week and year we are using.
 # how many arguments do we have?
@@ -107,23 +108,40 @@ for rec1 in recs[1:]:
 
 uniqueaway = [[np.mean([awaylocs[0][0][0] for i in range(len(awaylocs[0]))]),
               np.mean([awaylocs[0][0][1] for i in range(len(awaylocs[0]))])]]
-mapurl = mapurl + "&markers=color:red|label:A|%f,%f" % \
-         (uniqueaway[0][0], uniqueaway[0][1])
+#mapurl = mapurl + "&markers=color:red|label:A|%f,%f" % \
+#         (uniqueaway[0][0], uniqueaway[0][1])
 for place in awaylocs[1:]:
     tempaway = [np.mean([place[i][0] for i in range(len(place))]),
                   np.mean([place[i][1] for i in range(len(place))])]
-    mapurl = mapurl + "&markers=color:red|label:A|%f,%f" % \
-            (tempaway[0], tempaway[1])
+    #mapurl = mapurl + "&markers=color:red|label:A|%f,%f" % \
+    #        (tempaway[0], tempaway[1])
     uniqueaway.append(tempaway)
 
-mapurl = mapurl + "&sensor=false"
+#mapurl = mapurl + "&sensor=false"
 
-if len(uniqueaway) != 0:
-    print "Requesting google maps file of %i unique locations..." % \
-          (len(uniqueaway))
+if args.service == 'google':
+    # https://code.google.com/apis/maps/documentation/staticmaps/
+    mapurl = "http://maps.google.com/maps/api/staticmap?size=800x800&maptype=roadmap"
+    for loc in uniqueaway:
+        mapurl = mapurl + "&markers=color:red|label:A|%f,%f" % (loc[0], loc[1])
     if len(uniqueaway) == 2:
         mapurl = mapurl+'&zoom=10'
+elif args.service == 'osm':
+    # see http://staticmap.openstreetmap.de/
+    mapurl = "http://staticmap.openstreetmap.de/staticmap.php?maptype=osmarenderer&size=800x800&markers="
+    for loc in uniqueaway:
+        mapurl = mapurl + "%f,%f,lightblue|" % (loc[0], loc[1])
+    mapurl = mapurl[:-1]
+    mapurl = mapurl + "&center=%f,%f" % \
+             (np.mean(np.array(uniqueaway)[:, 0]),
+              np.mean(np.array(uniqueaway)[:, 1]))
+    # TODO here, calculate the zoom level based on the maximum separation of
+    # unique away points
+    mapurl = mapurl + "&zoom=4"
 
+if len(uniqueaway) != 0:
+    print "Requesting map of %i unique locations..." % \
+          (len(uniqueaway))
     if len(mapurl) < 2000:
         if args.plotfile is None:
             fname = '/srv/http/local/location/%i-%i.png' % (year, week)
