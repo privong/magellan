@@ -94,7 +94,6 @@ elif args.period == 'month':
                 year, year,
                 year, year, month,
                 year, month, year)
-    print command
 cursor.execute(command)
 recs = cursor.fetchall()
 
