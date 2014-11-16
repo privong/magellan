@@ -65,7 +65,7 @@ else:
     if args.month is None and args.week is None:
         mode = 'year'
 
-if week < 1:    # make sure we don't default to nonsense
+if week < 1 and mode == 'week':
     year = year-1
     week = (date(year, 12, 31).isocalendar())[0]
 
@@ -91,7 +91,7 @@ recs = cursor.fetchall()
 
 # arrange away locations by geographic proximity
 if len(recs) == 0:
-    sys.stderr.out("Now away records found for the specified time.\n")
+    sys.stderr.write("Now away records found for the specified time.\n")
     sys.exit(1)
 print "Converting %i records into a list of unique locations..." % (len(recs))
 command = 'SELECT lat,lon FROM locations WHERE UTC=\'%s\'' % (recs[0][0])
@@ -165,7 +165,8 @@ elif args.service == 'osm':
 if len(uniqueaway) != 0:
     print "Requesting map of %i unique locations..." % \
           (len(uniqueaway))
-    if len(mapurl) < 2000:
+    if (args.service == 'google' and len(mapurl) < 2000) or \
+       args.service == 'osm':
         if args.plotfile is None:
             fname = '/srv/http/local/location/%i-%i.png' % (year, week)
         else:
