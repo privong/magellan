@@ -36,6 +36,8 @@ parser.add_argument('-s', '--service', default='google', action='store',
                     help='Mapping service to use for generating static maps. \
                           Defaults to \'google\'. Other option: \'osm\' for \
                           OpenStreetMap.')
+parser.add_argument('-i', '--imgsize', default=800, action='store', type=int,
+                    help='Number of pixels on a side for the maps image.')
 parser.add_argument('-p', '--plotfile', default=None, action='store',
                     help='Name of file to save map.')
 args = parser.parse_args()
@@ -121,23 +123,30 @@ for place in awaylocs[1:]:
 
 if args.service == 'google':
     # https://code.google.com/apis/maps/documentation/staticmaps/
-    mapurl = "http://maps.google.com/maps/api/staticmap?size=800x800&maptype=roadmap"
+    mapurl = "http://maps.google.com/maps/api/staticmap?size=%ix%i&maptype=roadmap" % \
+             (args.imgsize, args.imgsize)
     for loc in uniqueaway:
         mapurl = mapurl + "&markers=color:red|label:A|%f,%f" % (loc[0], loc[1])
     if len(uniqueaway) == 2:
         mapurl = mapurl+'&zoom=10'
 elif args.service == 'osm':
     # see http://staticmap.openstreetmap.de/
-    mapurl = "http://staticmap.openstreetmap.de/staticmap.php?maptype=osmarenderer&size=800x800&markers="
+    mapurl = "http://staticmap.openstreetmap.de/staticmap.php?maptype=osmarenderer&size=%ix%i&markers=" % \
+             (args.imgsize, args.imgsize)
     for loc in uniqueaway:
         mapurl = mapurl + "%f,%f,lightblue|" % (loc[0], loc[1])
     mapurl = mapurl[:-1]
     mapurl = mapurl + "&center=%f,%f" % \
              (np.mean(np.array(uniqueaway)[:, 0]),
               np.mean(np.array(uniqueaway)[:, 1]))
-    # TODO here, calculate the zoom level based on the maximum separation of
-    # unique away points
-    mapurl = mapurl + "&zoom=4"
+    angdists = []
+    for loc in uniqueaway:  # compute the distance between pairs of away pts
+        for loc2 in uniqueaway:
+            angdists.append(np.sqrt((loc[0] - loc2[0])**2 +
+                                    (loc[1] - loc2[1])**2))
+    mapurl = mapurl + "&zoom=%i" % \
+             (np.floor(np.log((args.imgsize / 256.) * 
+                              360. / np.max(angdists)) / np.log(2)))
 
 if len(uniqueaway) != 0:
     print "Requesting map of %i unique locations..." % \
