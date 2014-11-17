@@ -30,10 +30,14 @@ class magellan:
             Mpw = config.get('Server Config', 'password')
             Mdb = config.get('Server Config', 'db')
         # create a catabase connection
-        self.scon = _MySQLdb.connect(host=Mserver, user=Muser, passwd=Mpw, 
+        try:
+            self.scon = _MySQLdb.connect(host=Mserver, user=Muser, passwd=Mpw,
                                      db=Mdb)
-        scur = self.scon.cursor()
-        return scur
+            scur = self.scon.cursor()
+            return scur
+        except _MySQLdb.OperationalError, e:
+            _sys.stderr.write(e.args[1]+'\n')
+            _sys.exit(1)
     
     def closedb(self):
         """
@@ -41,7 +45,11 @@ class magellan:
     
         Gracefully disconnect from the database.
         """
-        self.scon.close()
+        try:
+            self.scon.close()
+        except:
+            _sys.stderr.write('Error closing MySQL database connection.\n')
+            _sys.exit(1)
     
     
 def GreatCircDist(loc1, loc2):
