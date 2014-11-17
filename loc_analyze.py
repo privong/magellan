@@ -27,6 +27,11 @@ parser.add_argument('-m', '--month', action='store', type=int,
 parser.add_argument('-y', '--year', action='store', type=int,
                     default=False, help='Year. If not given, the current year \
                     is used.')
+parser.add_argument('--maxtime', action='store', type=float, default=840.,
+                    help="Maximum time separation (in hours) between adjacent \
+                         location points. Points separated by a larger value \
+                         will not be considered as connected (for the \
+                         purpose of determining if a point counts as travel).")
 args = parser.parse_args()
 
 trinidad = magellan.magellan()
@@ -192,19 +197,19 @@ for rec1 in recs:
                 # we're outside the home radius. see if we're traveling or not
                 travdist = magellan.GreatCircDist(rec1[1:], rec0[1:])
                 # now compute the average speed, see if we're traveling or not
-                speed = travdist/dechrs
-                msspeed = speed/3.6
-                if msspeed > TRAVELTHRESH:
+                speed = travdist/dechrs # km/hr
+                msspeed = speed/3.6 # m/s
+                if msspeed > TRAVELTHRESH and dechrs < args.maxtime:
                     # we're traveling!
                     ttime += dechrs*60.
                     loctype = 'travel'
                 else:
                     # we're away
-                    atime += dechrs*60.
+                    if dechrs < args.maxtime:
+                        atime += dechrs*60.
                     loctype = 'away'
             else:
                 tdiff = rec1[0]-rec0[0]
-                dechrs = tdiff.days*24+tdiff.seconds/3600.
                 # inside the home radius. we're in town
                 htime += dechrs*60.
                 loctype = 'home'
@@ -214,13 +219,14 @@ for rec1 in recs:
             # now compute the average speed, see if we're traveling or not
             speed = travdist/dechrs     # this is in km/hr
             msspeed = speed/3.6
-            if msspeed > TRAVELTHRESH:
+            if msspeed > TRAVELTHRESH and dechrs < args.maxtime:
                 # we're traveling!
                 ttime += dechrs*60.
                 loctype = 'travel'
             else:
                 # we're away
-                atime += dechrs*60.
+                if dechrs < args.maxtime:
+                    atime += dechrs*60.
                 loctype = 'away'
     # reset the 'new' rec to the old rec
     rec0 = rec1
