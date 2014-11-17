@@ -33,7 +33,8 @@ import argparse
 parser = argparse.ArgumentParser(description='Analyze stored location \
                                  information.')
 parser.add_argument('-p', '--period', action='store', type=str, default='week',
-                    help='Analysis period. Options: week (default) or month.')
+                    choices=['week', 'month', 'year', 'all'],
+                    help='Desired analysis period.')
 parser.add_argument('-w', '--week', action='store', type=int,
                     default=False, help='Week to analyze (default, uses most \
                     recent week)')
@@ -42,6 +43,11 @@ parser.add_argument('-m', '--month', action='store', type=int,
 parser.add_argument('-y', '--year', action='store', type=int,
                     default=False, help='Year. If not given, the current year \
                     is used.')
+parser.add_argument('--maxtime', action='store', type=float, default=840.,
+                    help="Maximum time separation (in hours) between adjacent \
+                         location points. Points separated by a larger value \
+                         will not be considered as connected (for the \
+                         purpose of determining if a point counts as travel).")
 args = parser.parse_args()
 
 trinidad = magellan.magellan()
@@ -56,20 +62,22 @@ atime = 0		# away time in minutes
 ttime = 0		# travel time in minutes
 
 today = date.today()
-if not(args.week):
-    week = (today.isocalendar())[1]-1
-else:
-    week = args.week
-if not(args.month):
-    month = today.month-1
-else:
-    month = args.month
+if args.period == 'week':
+    if not(args.week):
+        week = (today.isocalendar())[1]-1
+    else:
+        week = args.week
+elif args.period == 'month':
+    if not(args.month):
+        month = today.month-1
+    else:
+        month = args.month
 if not(args.year):
     year = (today.isocalendar())[0]
 else:
     year = args.year
 
-if week < 1:    # make sure we don't default to nonsense
+if args.period == 'week' and week < 1:
     year = year-1
     week = (date(year, 12, 31).isocalendar())[0]
 
@@ -109,6 +117,14 @@ elif args.period == 'month':
                 year, year,
                 year, year, month,
                 year, month, year)
+elif args.period == 'year':
+    print "Loading home location for %i..." % (year)
+    command = 'SELECT * FROM homeloc WHERE \
+               (YEAR(STARTDATE) <= %i AND YEAR(ENDDATE) >= %i)' \
+               % (year, year)
+elif args.period == 'all':
+    print "Loading all home locations..."
+    command = 'SELECT * FROM homeloc ORDER BY STARTDATE'
 cursor.execute(command)
 recs = cursor.fetchall()
 
@@ -134,7 +150,7 @@ if args.period == 'week':
     command = 'SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i \
               ORDER by locations.UTC' % (week, year)
     command2 = 'SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i \
-               ORDER by locations.UTC DESC' % \
+               ORDER by locations.UTC DESC LIMIT 1' % \
                ((52, year-1), (week-1, year))[week > 1]
     # command3='SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i \
     #          ORDER by locations.UTC' % ((0,year+1),(week+1,year))[week < 53]
@@ -142,28 +158,35 @@ elif args.period == 'month':
     command = 'SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i \
               ORDER by locations.UTC' % (month, year)
     command2 = 'SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i \
-               ORDER by locations.UTC DESC' % \
+               ORDER by locations.UTC DESC LIMIT 1' % \
                ((12, year-1), (month-1, year))[month > 1]
     # command3='SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i \
     #          ORDER by locations.UTC' % \
     #          ((1,year+1),(month+1,year))[month < 12]
+elif args.period == 'year':
+    command = 'SELECT * FROM locations WHERE YEAR(UTC)=%i \
+              ORDER by locations.UTC' % (year)
+    command2 = 'SELECT * FROM locations WHERE MONTH(UTC)=12 AND YEAR(UTC)=%i \
+               ORDER by locations.UTC DESC LIMIT 1' % (year - 1)
+elif args.period == 'all':
+    command = 'SELECT * FROM locations ORDER by locations.UTC'
 cursor.execute(command)
 recs = cursor.fetchall()
-cursor.execute(command2)
-preloc = cursor.fetchone()
-# cursor.execute(command3)
-# postloc=cursor.fetchone()
-
-
 if len(recs) < 1:
     sys.stderr.write('ERROR: no records found for the requested time \
                      interval. Exiting.\n')
     sys.exit()
 
+if args.period != 'all':
+    cursor.execute(command2)
+    preloc = cursor.fetchone()
+    rec0 = preloc
+else:
+    rec0 = recs[0]
+
 # go through the rows sequentially. First, check if the GPS location puts it
 # within the "home" tolerance specified above. If it is, add that time to the
 # amount spent at "home".
-rec0 = preloc
 nrecs = len(recs)
 loctype = 'away'
 d = 0
@@ -183,7 +206,7 @@ for rec1 in recs:
     if rec1 == rec0:
         if hradius == -1:
             # it's all away
-            atime += dechrs*60.
+            atime += 0.
             if args.period == 'week':
                 loctype = 'away'
         else:
@@ -207,19 +230,19 @@ for rec1 in recs:
                 # we're outside the home radius. see if we're traveling or not
                 travdist = magellan.GreatCircDist(rec1[1:], rec0[1:])
                 # now compute the average speed, see if we're traveling or not
-                speed = travdist/dechrs
-                msspeed = speed/3.6
-                if msspeed > TRAVELTHRESH:
+                speed = travdist/dechrs # km/hr
+                msspeed = speed/3.6 # m/s
+                if msspeed > TRAVELTHRESH and dechrs < args.maxtime:
                     # we're traveling!
                     ttime += dechrs*60.
                     loctype = 'travel'
                 else:
                     # we're away
-                    atime += dechrs*60.
+                    if dechrs < args.maxtime:
+                        atime += dechrs*60.
                     loctype = 'away'
             else:
                 tdiff = rec1[0]-rec0[0]
-                dechrs = tdiff.days*24+tdiff.seconds/3600.
                 # inside the home radius. we're in town
                 htime += dechrs*60.
                 loctype = 'home'
@@ -229,13 +252,14 @@ for rec1 in recs:
             # now compute the average speed, see if we're traveling or not
             speed = travdist/dechrs     # this is in km/hr
             msspeed = speed/3.6
-            if msspeed > TRAVELTHRESH:
+            if msspeed > TRAVELTHRESH and dechrs < args.maxtime:
                 # we're traveling!
                 ttime += dechrs*60.
                 loctype = 'travel'
             else:
                 # we're away
-                atime += dechrs*60.
+                if dechrs < args.maxtime:
+                    atime += dechrs*60.
                 loctype = 'away'
     # reset the 'new' rec to the old rec
     rec0 = rec1
@@ -282,7 +306,8 @@ elif args.period == 'month':
               (magellan.yearid(year, month), year, month, htime,
                htime/totaltime, atime, atime/totaltime, ttime, ttime/totaltime)
 
-cursor.execute(command)
+if args.period == 'week' or args.period == 'month':
+    cursor.execute(command)
 
 # close SQL
 cursor.close()
