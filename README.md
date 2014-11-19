@@ -17,6 +17,7 @@ Possible outputs include histograms of time spent each week/month in the above s
 * plot_histogram.py - Make plots of week home/away/travel fractions for the past 10 weeks or the past year.
 * sql_import.py - import a CSV table of GPS locations to the database.
 
+<<<<<<< 07d3e1b7eb12610658393bd67b71dca85d73604b
 ## Other
 
 * magellan.cfg.example - Example configuration file. Rename to 'magellan.cfg' after entering your particular values.
