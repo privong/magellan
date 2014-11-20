@@ -86,6 +86,12 @@ class magellan:
             sys.stderr.write('Travel threshold not defined in config file.\
                               Using default of 13.5 m/s.\n')
             self.travelspeed = 13.5
+        try:
+            self.uniquedist = self.config.get('Analysis', 'uniquedist')
+        except:
+            sys.stderr.write('Distance for unique away points not defined in\
+                             config file. Using default value of 60 km.\n')
+            self.uniquedist = 60.
 
 def GreatCircDist(loc1, loc2):
     """

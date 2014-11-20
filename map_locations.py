@@ -45,9 +45,10 @@ parser.add_argument('-y', '--year', type=int, default=None, action='store',
                     help='Year to use. If left blank, the current year will \
                          be used. If this is the only item specified, a map \
                          will be made of all away points during that year.')
-parser.add_argument('-u', '--uniquedist', default=60, action='store',
+parser.add_argument('-u', '--uniquedist', action='store', default=None,
                     help='Approximate distance (in km) points must be to be \
-                         considered "unique".')
+                         considered "unique". Will override default value in\
+                         the configuration file.')
 parser.add_argument('-s', '--service', default='osm', action='store',
                     choices=['google', 'osm'],
                     help='Mapping service to use for generating static maps. \
@@ -60,7 +61,11 @@ parser.add_argument('-p', '--plotfile', default=None, action='store',
 args = parser.parse_args()
 
 trinidad = magellan.magellan()
+trinidad.loadanalysis()
 cursor = trinidad.initdb()
+
+if args.uniquedist is not None:
+    trinidad.uniquedist = args.uniquedist
 
 # process arguments, decide which week and year we are using.
 # how many arguments do we have?
@@ -126,7 +131,7 @@ for rec1 in recs[1:]:
         tlong = np.mean([awaylocs[i][j][1] for j in range(len(awaylocs[i]))])
         tdist = magellan.GreatCircDist([tlat, tlong], thisloc[0])
         # check for distance
-        if tdist < args.uniquedist:
+        if tdist < trinidad.uniquedist:
             # within an existing unique location
             umatch = True
             awaylocs[i].append([thisloc[0][0], thisloc[0][1]])
