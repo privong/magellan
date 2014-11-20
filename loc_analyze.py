@@ -53,9 +53,9 @@ args = parser.parse_args()
 trinidad = magellan.magellan()
 cursor = trinidad.initdb()
 
-TABLENAME = "locations_spec"
+trinidad.loadanalysis()
 
-TRAVELTHRESH = 13.5     # m/s
+TABLENAME = "locations_spec"
 
 htime = 0		# home time in minutes
 atime = 0		# away time in minutes
@@ -232,7 +232,7 @@ for rec1 in recs:
                 # now compute the average speed, see if we're traveling or not
                 speed = travdist/dechrs # km/hr
                 msspeed = speed/3.6 # m/s
-                if msspeed > TRAVELTHRESH and dechrs < args.maxtime:
+                if msspeed > trinidad.travelthresh and dechrs < args.maxtime:
                     # we're traveling!
                     ttime += dechrs*60.
                     loctype = 'travel'
@@ -252,7 +252,7 @@ for rec1 in recs:
             # now compute the average speed, see if we're traveling or not
             speed = travdist/dechrs     # this is in km/hr
             msspeed = speed/3.6
-            if msspeed > TRAVELTHRESH and dechrs < args.maxtime:
+            if msspeed > trinidad.travelthresh and dechrs < args.maxtime:
                 # we're traveling!
                 ttime += dechrs*60.
                 loctype = 'travel'

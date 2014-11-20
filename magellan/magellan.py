@@ -74,6 +74,18 @@ class magellan:
             _sys.stderr.write('Error closing MySQL database connection.\n')
             _sys.exit(1)
 
+    def loadanalysis(self):
+        """
+        loadanalysis()
+
+        Load various analysis settings from the config file
+        """
+        try:
+            self.travelthresh = self.config.get('Analysis', 'travelthresh')
+        except:
+            sys.stderr.write('Travel threshold not defined in config file.\
+                              Using default of 13.5 m/s.\n')
+            self.travelthresh = 13.5
 
 def GreatCircDist(loc1, loc2):
     """
