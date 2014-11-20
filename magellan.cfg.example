@@ -6,7 +6,7 @@ password = Password
 db = DatabaseName
 
 [Analysis]
-travelspeed = 13.5      # threshold for something to be considered "traveling"
-                        # given in m/s
-uniquedist = 60.        # distance away from a previous point for an away
-                        # point to be considered unique. in km
+# threshold for something to be considered "traveling", in m/s
+travelspeed = 13.5
+# distance away from a previous point for an away to be considered unique, in km
+uniquedist = 60.

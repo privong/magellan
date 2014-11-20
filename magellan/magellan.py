@@ -81,15 +81,15 @@ class magellan:
         Load various analysis settings from the config file
         """
         try:
-            self.travelspeed = self.config.get('Analysis', 'travelspeed')
+            self.travelspeed = self.config.getfloat('Analysis', 'travelspeed')
         except:
-            sys.stderr.write('Travel threshold not defined in config file.\
+            _sys.stderr.write('Travel threshold not defined in config file.\
                               Using default of 13.5 m/s.\n')
             self.travelspeed = 13.5
         try:
-            self.uniquedist = self.config.get('Analysis', 'uniquedist')
+            self.uniquedist = self.config.getfloat('Analysis', 'uniquedist')
         except:
-            sys.stderr.write('Distance for unique away points not defined in\
+            _sys.stderr.write('Distance for unique away points not defined in\
                              config file. Using default value of 60 km.\n')
             self.uniquedist = 60.
 
