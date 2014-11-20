@@ -150,7 +150,7 @@ for place in awaylocs[1:]:
     #        (tempaway[0], tempaway[1])
     uniqueaway.append(tempaway)
 
-naway = 1
+naway = 0
 if args.service == 'google':
     # https://code.google.com/apis/maps/documentation/staticmaps/
     mapurl = "http://maps.google.com/maps/api/staticmap?size=%ix%i&maptype=roadmap" % \
@@ -176,15 +176,18 @@ elif args.service == 'osm':
             newdist = (np.sqrt((loc[0] - loc2[0])**2 +
                        (loc[1] - loc2[1])**2))
             if newdist > maxdist[0]:
-                maxdist = [newdist, [(loc[0] + loc2[0]) / 2., 
+                maxdist = [newdist, [(loc[0] + loc2[0]) / 2.,
                                      (loc[1] + loc2[1]) / 2.]]
-    if maxdist == [0]:
-        # likely happens because there was only 1 uniqueaway
-        maxdist = [1, uniqueaway[0]]
-    mapurl = mapurl + "&center=%f,%f" % (maxdist[1][0], maxdist[1][1])
-    mapurl = mapurl + "&zoom=%i" % \
-             (np.floor(np.log((args.imgsize / 256.) * 
-                              360. / maxdist[0]) / np.log(2)))
+    if naway > 1:
+        mapurl = mapurl + "&center=%f,%f" % (maxdist[1][0], maxdist[1][1])
+        mapurl = mapurl + "&zoom=%i" % \
+                 (np.floor(np.log((args.imgsize / 256.) *
+                                  360. / maxdist[0]) / np.log(2)))
+    else:
+        mapurl = mapurl + "&center=%f,%f" % (uniqueaway[0][0], uniqueaway[0][1])
+        mapurl = mapurl + "&zoom=%i" % \
+                 (np.floor(np.log((args.imgsize / 256.) *
+                                  360. / 60) / np.log(2)))
 
 if len(uniqueaway) != 0:
     sys.stdout.write("Requesting map of %i unique locations..." % (len(uniqueaway)))
