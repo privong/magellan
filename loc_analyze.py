@@ -252,7 +252,7 @@ for rec1 in recs:
             # now compute the average speed, see if we're traveling or not
             speed = travdist/dechrs     # this is in km/hr
             msspeed = speed/3.6
-            if msspeed > trinidad.travelthresh and dechrs < args.maxtime:
+            if msspeed > trinidad.travelspeed and dechrs < args.maxtime:
                 # we're traveling!
                 ttime += dechrs*60.
                 loctype = 'travel'
