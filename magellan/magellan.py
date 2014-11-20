@@ -82,7 +82,6 @@ class magellan:
         """
         try:
             self.travelspeed = self.config.getfloat('Analysis', 'travelspeed')
-            self.travelspeed = self.config.get('Analysis', 'travelspeed')
         except:
             _sys.stderr.write('Travel threshold not defined in config file.\
                               Using default of 13.5 m/s.\n')
