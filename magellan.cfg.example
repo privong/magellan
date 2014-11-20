@@ -6,5 +6,5 @@ password = Password
 db = DatabaseName
 
 [Analysis]
-travelthresh = 13.5     # threshold for something to be considered "traveling"
+travelspeed = 13.5     # threshold for something to be considered "traveling"
                         # given in m/s

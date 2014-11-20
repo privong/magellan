@@ -81,11 +81,11 @@ class magellan:
         Load various analysis settings from the config file
         """
         try:
-            self.travelthresh = self.config.get('Analysis', 'travelthresh')
+            self.travelspeed = self.config.get('Analysis', 'travelspeed')
         except:
             sys.stderr.write('Travel threshold not defined in config file.\
                               Using default of 13.5 m/s.\n')
-            self.travelthresh = 13.5
+            self.travelspeed = 13.5
 
 def GreatCircDist(loc1, loc2):
     """
