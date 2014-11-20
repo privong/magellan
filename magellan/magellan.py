@@ -15,55 +15,57 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 import math as _math
 import ConfigParser as _ConfigParser
 import MySQLdb as _MySQLdb
 import sys as _sys
 import os as _os
 
+
 class magellan:
+    def __init__(self):
+        self.config = _ConfigParser.RawConfigParser()
+        if _os.path.isfile('magellan.cfg'):
+            self.config.read('magellan.cfg')
+        else:
+            _sys.stderr.write('Could not load configuration file.\n')
+            _sys.exit(-1)
+
     # load configuration file and connect to the database
     def initdb(self):
         """
         initdb()
-    
+
         Connect to the MySQL server and return an interface to the server
         """
-    
+
         # load information from the configuration file
-        if not(_os.path.isfile('magellan.cfg')):
-            _sys.stderr.write('Error magellan.cfg file not found in working \
-                               directory. Exiting.\n')
+        if not(self.config.get('Server Config', 'server')) or \
+           not(self.config.get('Server Config', 'user')) or \
+           not(self.config.get('Server Config', 'password')) or \
+           not(self.config.get('Server Config', 'db')):
+            _sys.stderr.write('Configuration file error. Please check the \
+                               configuration file.\n')
             _sys.exit(-1)
-        config = _ConfigParser.RawConfigParser()
-        config.read('magellan.cfg')
-        if not(config.get('Server Config', 'server')) or \
-            not(config.get('Server Config', 'user')) or \
-            not(config.get('Server Config', 'password')) or \
-            not(config.get('Server Config', 'db')):
-                _sys.stderr.write('Configuration file error. Please check the \
-                                   configuration file.\n')
-                _sys.exit(-1)
         else:
-            Mserver = config.get('Server Config', 'server')
-            Muser = config.get('Server Config', 'user')
-            Mpw = config.get('Server Config', 'password')
-            Mdb = config.get('Server Config', 'db')
+            Mserver = self.config.get('Server Config', 'server')
+            Muser = self.config.get('Server Config', 'user')
+            Mpw = self.config.get('Server Config', 'password')
+            Mdb = self.config.get('Server Config', 'db')
         # create a catabase connection
         try:
             self.scon = _MySQLdb.connect(host=Mserver, user=Muser, passwd=Mpw,
-                                     db=Mdb)
+                                         db=Mdb)
             scur = self.scon.cursor()
             return scur
         except _MySQLdb.OperationalError, e:
             _sys.stderr.write(e.args[1]+'\n')
             _sys.exit(1)
-    
+
     def closedb(self):
         """
         closedb()
-    
+
         Gracefully disconnect from the database.
         """
         try:
@@ -71,8 +73,8 @@ class magellan:
         except:
             _sys.stderr.write('Error closing MySQL database connection.\n')
             _sys.exit(1)
-    
-    
+
+
 def GreatCircDist(loc1, loc2):
     """
     GreatCircDist()
