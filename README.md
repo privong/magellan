@@ -12,6 +12,14 @@ Possible outputs include histograms of time spent each week/month in the above s
 * numpy
 * pycurl (for map retrieval)
 
+## Requirements
+
+* MySQL
+* python-mysqldb
+* matplotlib (for histogram plotting)
+* numpy
+* pycurl (for map retrieval)
+
 ## Documentation
 
 * README.md - This file.
