@@ -1,10 +1,10 @@
 #!/usr/bin/env python2
 #
-# gmaps-weekly.py
+# map_locations.py
 #
-# The information will be retreived from an SQL database
+# Generate and save a map of locations visited, based on GPS logs.
 #
-# Copyright (C) 2014 George C. Privon
+# Copyright (C) 2014-2015 George C. Privon
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

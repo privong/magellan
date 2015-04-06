@@ -2,11 +2,11 @@
 #
 # sql_import.py
 #
-# Load a textfile (CSV) of GPS data from palm pre, put it into a SQL database
-#
+# Load a textfile (CSV) of GPS data and store it into a SQL database.
+# The log file should have the following format:
 # UTC time,lat,long,horiz accuracy,alt,vert accuracy,speed,heading,battery
 #
-# Copyright (C) 2014 George C. Privon
+# Copyright (C) 2014-2015 George C. Privon
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
