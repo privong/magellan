@@ -42,6 +42,8 @@ scur = trinidad.initdb()
 
 TABLENAME = "locations"
 
+e = 0
+f = 0
 for filename in args.files:
     i = 0
     d = 0
@@ -126,8 +128,12 @@ for filename in args.files:
         i -= 1  # to correct for the counting of the first row
     sys.stdout.write("%i unique records imported from %s. " % (i-d, filename))
     sys.stdout.write("%i duplicate records replaced.\n" % (d))
+    e += i
+    f += d
     infile.close()
 # close SQL
 scur.close()
 trinidad.closedb()
 
+sys.stdout.write("% total new records imported. %i duplicates replaced.\n" %
+                 (e, f))
