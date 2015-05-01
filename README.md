@@ -20,5 +20,5 @@ Scripts
 
 Other
 -----
-* magellan.cfg.example - Example configuration file. Rename to '.magellan' after entering your particular values.
+* magellan.cfg.example - Example configuration file. Rename to 'magellan.cfg' after entering your particular values.
 * magellan/	- magellan python library
