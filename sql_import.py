@@ -135,5 +135,5 @@ for filename in args.files:
 scur.close()
 trinidad.closedb()
 
-sys.stdout.write("% total new records imported. %i duplicates replaced.\n" %
+sys.stdout.write("%i total new records imported. %i duplicates replaced.\n" %
                  (e, f))
