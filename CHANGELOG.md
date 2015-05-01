@@ -6,6 +6,7 @@
 
 * bugfixes in sql_import.py
 * improved error handling for configuration file
+* fix bug in loc_analyze which could collect too many homelocs for a given week
 
 #### plot_histogram
 
