@@ -125,7 +125,7 @@ for filename in args.files:
             else:
                 i = 1
         i -= 1  # to correct for the counting of the first row
-    sys.stdout.write("%i unique records imported from %s. " % (i-d, filename)
+    sys.stdout.write("%i unique records imported from %s. " % (i-d, filename))
     sys.stdout.write("%i duplicate records replaced.\n" % (d))
     infile.close()
 # close SQL
