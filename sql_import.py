@@ -42,9 +42,9 @@ scur = trinidad.initdb()
 
 TABLENAME = "locations"
 
-i = 0
-d = 0
 for filename in args.files:
+    i = 0
+    d = 0
     infile = open(filename, "r")
     if re.search('gpx', filename):
         import gpxpy
@@ -96,8 +96,7 @@ for filename in args.files:
                 break
             if i > 0:
                 s = line.split(',')
-                if line[0] == 'time':
-                    continue
+                print s
                 batt = -1
                 vacc = -1
                 # make sure we don't already have an entry for this time
@@ -126,10 +125,10 @@ for filename in args.files:
             else:
                 i = 1
         i -= 1  # to correct for the counting of the first row
+    sys.stdout.write("%i unique records imported from %s. " % (i-d, filename)
+    sys.stdout.write("%i duplicate records replaced.\n" % (d))
     infile.close()
 # close SQL
 scur.close()
 trinidad.closedb()
 
-sys.stdout.write("%i unique records imported from %s. " % (i-d, sys.argv[1]))
-sys.stdout.write("%i duplicate records replaced.\n" % (d))
