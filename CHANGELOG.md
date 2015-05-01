@@ -1,8 +1,8 @@
 # Changelog
 
-## 0.3.x
+## 0.3.x Series
 
-### 0.3.1rc (in progress)
+### 0.3.1 (2015 May 01)
 
 * bugfixes in sql_import.py
 * improved error handling for configuration file
@@ -19,7 +19,7 @@
 * Add some error-handling for the database connection
 * license code under GPLv3
 
-## 0.2.x
+## 0.2.x Series
 
 Note: Changelog is incomplete for the 0.2.x series.
 
@@ -31,7 +31,7 @@ Note: Changelog is incomplete for the 0.2.x series.
 
 * Openstreemaps is now the default mapping service for creating away maps.
 
-## 0.1.x
+## 0.1.x Series
 
 Note: Changelog is incomplete for the 0.1.x series.
 
