@@ -1,6 +1,6 @@
 # magellan library
 #
-# Copyright (C) 2014 George C. Privon
+# Copyright (C) 2014, 2015 George C. Privon
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ import math as _math
 import ConfigParser as _ConfigParser
 import MySQLdb as _MySQLdb
 import sys as _sys
+import os as _os
 
 class magellan:
     # load configuration file and connect to the database
@@ -31,6 +32,10 @@ class magellan:
         """
     
         # load information from the configuration file
+        if not(_os.path.isfile('magellan.cfg')):
+            _sys.stderr.write('Error magellan.cfg file not found in working \
+                               directory. Exiting.\n')
+            _sys.exit(-1)
         config = _ConfigParser.RawConfigParser()
         config.read('magellan.cfg')
         if not(config.get('Server Config', 'server')) or \
