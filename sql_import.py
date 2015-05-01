@@ -96,6 +96,8 @@ for filename in args.files:
                 break
             if i > 0:
                 s = line.split(',')
+                if line[0] == 'time':
+                    continue
                 batt = -1
                 vacc = -1
                 # make sure we don't already have an entry for this time
