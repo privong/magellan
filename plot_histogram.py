@@ -46,6 +46,10 @@ parser.add_argument('-t', '--type', default='bar',
                     choices=['points', 'bar'],
                     help='Plot type. points: points showing the fraction of \
                           time spent in each setting. bar: stacked bar chart.')
+parser.add_argument('--scaling', default='days',
+                    choices=['week', 'days', 'hours'],
+                    help='Show the y-axis scale as days in the week or as a \
+                          fraction of the total week?')
 args = parser.parse_args()
 
 TABLENAME = "analyze_weekly"
@@ -93,6 +97,19 @@ if len(recs) == 0:
 print "Retreived %i results" % (len(recs))
 
 results = numpy.array(recs)
+if args.scaling == 'days':
+    for i in range(2, 5):
+        results[:, i] *= 7
+    ylabel = 'Days'
+    ylimscale = 7
+elif args.scaling == 'hours':
+    for i in range(2, 5):
+        results[:, i] *= 7 * 24
+    ylabel = 'Hours'
+    ylimscale = 7 * 24
+else:
+    ylabel = 'Fraction'
+    ylimscale = 1
 
 plt.ioff()
 plotsym = ['bo', 'go', 'ro']
@@ -103,7 +120,7 @@ if args.type == 'points':
                  results[:, i],
                  plotsym[i-2],
                  label=plotlabel[i-2])
-    plt.ylim([-0.01, 1.1])
+    plt.ylim([-0.01, 1.1*ylimscale])
 elif args.type == 'bar':
     plt.bar(results[:, 1] - 0.5,
             results[:, 2],
@@ -122,12 +139,12 @@ elif args.type == 'bar':
             bottom=results[:, 2] + results[:, 3],
             color=plotsym[2][0],
             label=plotlabel[2])
-    plt.ylim([0, 1])
+    plt.ylim([0, 1 * ylimscale])
     plt.tick_params(direction='inout')
 plt.legend(fontsize='x-small', numpoints=1, frameon=True)
 (x1, x2) = plt.xlim()
 plt.xlim(x1-1, x2+3)
-plt.ylabel('Fraction')
+plt.ylabel(ylabel)
 plt.xlabel('Week Number')
 plt.minorticks_on()
 

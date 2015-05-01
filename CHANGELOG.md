@@ -6,7 +6,11 @@
 
 * bugfixes in sql_import.py
 * improved error handling for configuration file
+
+#### plot_histogram
+
 * add stacked bar chart for the histogram, now default
+* histogram y-scale can be shown in fraction of a week (previous default), equivalent number of days in a week (new default), or hours in a week
 
 ### 0.3.0 (2014 November 17)
 
