@@ -42,6 +42,10 @@ parser.add_argument('-y', '--year', action='store_true', default=False,
                     help='Plot analyitics for the current year.')
 parser.add_argument('-p', '--plotfile', default=None,
                     help='Location to save figure.')
+parser.add_argument('-t', '--type', default='bar',
+                    choices=['points', 'bar'],
+                    help='Plot type. points: points showing the fraction of \
+                          time spent in each setting. bar: stacked bar chart.')
 args = parser.parse_args()
 
 TABLENAME = "analyze_weekly"
@@ -91,15 +95,38 @@ print "Retreived %i results" % (len(recs))
 results = numpy.array(recs)
 
 plt.ioff()
-# plot home, away, travel
 plotsym = ['bo', 'go', 'ro']
 plotlabel = ['Home', 'Away', 'Travel']
-for i in range(2, 5):
-    plt.plot(results[:, 1], results[:, i], plotsym[i-2], label=plotlabel[i-2])
+if args.type == 'points':
+    for i in range(2, 5):
+        plt.plot(results[:, 1],
+                 results[:, i],
+                 plotsym[i-2],
+                 label=plotlabel[i-2])
+    plt.ylim([-0.01, 1.1])
+elif args.type == 'bar':
+    plt.bar(results[:, 1] - 0.5,
+            results[:, 2],
+            width=1,
+            color=plotsym[0][0],
+            label=plotlabel[0])
+    plt.bar(results[:, 1] - 0.5,
+            results[:, 3],
+            width=1,
+            bottom=results[:, 2],
+            color=plotsym[1][0],
+            label=plotlabel[1])
+    plt.bar(results[:, 1] - 0.5,
+            results[:, 4],
+            width=1,
+            bottom=results[:, 2] + results[:, 3],
+            color=plotsym[2][0],
+            label=plotlabel[2])
+    plt.ylim([0, 1])
+    plt.tick_params(direction='inout')
 plt.legend(fontsize='x-small', numpoints=1, frameon=True)
-plt.ylim([-0.01, 1.1])
 (x1, x2) = plt.xlim()
-plt.xlim(x1-1, x2+1)
+plt.xlim(x1-1, x2+3)
 plt.ylabel('Fraction')
 plt.xlabel('Week Number')
 plt.minorticks_on()

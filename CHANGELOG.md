@@ -6,6 +6,7 @@
 
 * bugfixes in sql_import.py
 * improved error handling for configuration file
+* add stacked bar chart for the histogram, now default
 
 ### 0.3.0 (2014 November 17)
 
