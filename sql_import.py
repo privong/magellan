@@ -96,7 +96,6 @@ for filename in args.files:
                 break
             if i > 0:
                 s = line.split(',')
-                print s
                 batt = -1
                 vacc = -1
                 # make sure we don't already have an entry for this time
