@@ -32,7 +32,7 @@ class magellan:
     
         # load information from the configuration file
         config = _ConfigParser.RawConfigParser()
-        config.read('.magellan')
+        config.read('magellan.cfg')
         if not(config.get('Server Config', 'server')) or \
             not(config.get('Server Config', 'user')) or \
             not(config.get('Server Config', 'password')) or \

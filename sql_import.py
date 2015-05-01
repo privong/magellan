@@ -44,7 +44,7 @@ TABLENAME = "locations"
 
 i = 0
 d = 0
-for filename in files:
+for filename in args.files:
     infile = open(filename, "r")
     if re.search('gpx', filename):
         import gpxpy
