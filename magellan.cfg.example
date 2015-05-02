@@ -1,7 +1,6 @@
-# rename to '.magellan'
+# Please enter appropriate values and rename to 'magellan.cfg'
 [Server Config]
 server = ServerName
 user = UserName
 password = Password
 db = DatabaseName
-
