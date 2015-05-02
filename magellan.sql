@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS `homeloc` (
   `lat` float NOT NULL,
   `long` float NOT NULL,
   `homeradiu` float NOT NULL DEFAULT '60' COMMENT 'home radius in km',
+  `comment` varchar(120),
   UNIQUE KEY `startdate` (`startdate`,`enddate`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 

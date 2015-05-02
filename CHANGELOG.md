@@ -2,6 +2,10 @@
 
 ## 0.3.x Series
 
+### 0.3.2 (in progress)
+
+* add "comment" column to homeloc table. This is not currently used in the processing, but may be used in the future, to annotate magellan output.
+
 ### 0.3.1 (2015 May 01)
 
 * bugfixes in sql_import.py
