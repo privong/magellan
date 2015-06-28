@@ -91,17 +91,17 @@ if week < 1 and mode == 'week':
     week = (date(year, 12, 31).isocalendar())[0]
 
 if mode == 'week':
-    sys.stdout.write("Loading home location for week %i of %i..." % (week, year))
+    sys.stdout.write("Loading home location for week %i of %i...\n" % (week, year))
     command = 'SELECT * FROM locations_spec WHERE WEEK(UTC,1)=%i AND \
                YEAR(UTC)=%i AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
               (week, year)
 elif mode == 'month':
-    sys.stdout.write("Loading home location for month %i of %i..." % (month, year))
+    sys.stdout.write("Loading home location for month %i of %i...\n" % (month, year))
     command = 'SELECT * FROM locations_spec WHERE MONTH(UTC)=%i AND \
                YEAR(UTC)=%i AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
               (month, year)
 elif mode == 'year':
-    sys.stdout.write("Loading home location for %i..." % (year))
+    sys.stdout.write("Loading home location for %i...\n" % (year))
     command = 'SELECT * FROM locations_spec WHERE YEAR(UTC)=%i \
                AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
               (year)
@@ -114,7 +114,7 @@ recs = cursor.fetchall()
 if len(recs) == 0:
     sys.stderr.write("No away records found for the specified time.\n")
     sys.exit(1)
-sys.stdout.write("Converting %i records into a list of unique locations..." % (len(recs)))
+sys.stdout.write("Converting %i records into a list of unique locations...\n" % (len(recs)))
 command = 'SELECT lat,lon FROM locations WHERE UTC=\'%s\'' % (recs[0][0])
 cursor.execute(command)
 thisloc = cursor.fetchall()
@@ -190,7 +190,7 @@ elif args.service == 'osm':
                                   360. / 60) / np.log(2)))
 
 if len(uniqueaway) != 0:
-    sys.stdout.write("Requesting map of %i unique locations..." % (len(uniqueaway)))
+    sys.stdout.write("Requesting map of %i unique locations...\n" % (len(uniqueaway)))
     if (args.service == 'google' and len(mapurl) < 2000) or \
        args.service == 'osm':
         if args.plotfile is None:
@@ -207,9 +207,9 @@ if len(uniqueaway) != 0:
         fp.close()
         sys.stdout.write("Map saved to " + fname + "\n")
     else:
-        sys.stderr.write("ERROR: request url exceeds google static maps API limit Exiting.")
+        sys.stderr.write("ERROR: request url exceeds google static maps API limit Exiting.\n")
 else:
-    sys.stdout.write("No away locations found. Exiting.")
+    sys.stdout.write("No away locations found. Exiting.\n")
 
 # close SQL
 cursor.close()
