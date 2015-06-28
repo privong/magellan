@@ -199,8 +199,7 @@ if len(uniqueaway) != 0:
         fp.close()
         sys.stdout.write("Map saved to " + fname + "\n")
     else:
-        sys.stderr.write("ERROR: request url exceeds google static maps API
-                         limit Exiting.")
+        sys.stderr.write("ERROR: request url exceeds google static maps API limit Exiting.")
 else:
     sys.stdout.write("No away locations found. Exiting.")
 
