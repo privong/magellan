@@ -107,7 +107,7 @@ recs = cursor.fetchall()
 
 # arrange away locations by geographic proximity
 if len(recs) == 0:
-    sys.stderr.write("Now away records found for the specified time.\n")
+    sys.stderr.write("No away records found for the specified time.\n")
     sys.exit(1)
 print "Converting %i records into a list of unique locations..." % (len(recs))
 command = 'SELECT lat,lon FROM locations WHERE UTC=\'%s\'' % (recs[0][0])
