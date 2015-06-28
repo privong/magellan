@@ -173,6 +173,9 @@ elif args.service == 'osm':
             if newdist > maxdist[0]:
                 maxdist = [newdist, [(loc[0] + loc2[0]) / 2., 
                                      (loc[1] + loc2[1]) / 2.]]
+    if maxdist == [0]:
+        # likely happens because there was only 1 uniqueaway
+        maxdist = [1, uniqueaway[0]]
     mapurl = mapurl + "&center=%f,%f" % (maxdist[1][0], maxdist[1][1])
     mapurl = mapurl + "&zoom=%i" % \
              (np.floor(np.log((args.imgsize / 256.) * 
