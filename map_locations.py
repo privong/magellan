@@ -86,17 +86,17 @@ if week < 1 and mode == 'week':
     week = (date(year, 12, 31).isocalendar())[0]
 
 if mode == 'week':
-    print "Loading home location for week %i of %i..." % (week, year)
+    sys.stdout.write("Loading home location for week %i of %i..." % (week, year))
     command = 'SELECT * FROM locations_spec WHERE WEEK(UTC,1)=%i AND \
                YEAR(UTC)=%i AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
               (week, year)
 elif mode == 'month':
-    print "Loading home location for month %i of %i..." % (month, year)
+    sys.stdout.write("Loading home location for month %i of %i..." % (month, year))
     command = 'SELECT * FROM locations_spec WHERE MONTH(UTC)=%i AND \
                YEAR(UTC)=%i AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
               (month, year)
 elif mode == 'year':
-    print "Loading home location for %i..." % (year)
+    sys.stdout.write("Loading home location for %i..." % (year))
     command = 'SELECT * FROM locations_spec WHERE YEAR(UTC)=%i \
                AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
               (year)
@@ -109,7 +109,7 @@ recs = cursor.fetchall()
 if len(recs) == 0:
     sys.stderr.write("No away records found for the specified time.\n")
     sys.exit(1)
-print "Converting %i records into a list of unique locations..." % (len(recs))
+sys.stdout.write("Converting %i records into a list of unique locations..." % (len(recs)))
 command = 'SELECT lat,lon FROM locations WHERE UTC=\'%s\'' % (recs[0][0])
 cursor.execute(command)
 thisloc = cursor.fetchall()
@@ -179,8 +179,7 @@ elif args.service == 'osm':
                               360. / maxdist[0]) / np.log(2)))
 
 if len(uniqueaway) != 0:
-    print "Requesting map of %i unique locations..." % \
-          (len(uniqueaway))
+    sys.stdout.write("Requesting map of %i unique locations..." % (len(uniqueaway)))
     if (args.service == 'google' and len(mapurl) < 2000) or \
        args.service == 'osm':
         if args.plotfile is None:
@@ -195,11 +194,12 @@ if len(uniqueaway) != 0:
         curl.perform()
         curl.close()
         fp.close()
+        sys.stdout.write("Map saved to " + fname + "\n")
     else:
-        print "ERROR: request url exceeds google static maps API limit. \
-              Exiting."
+        sys.stderr.write("ERROR: request url exceeds google static maps API
+                         limit Exiting.")
 else:
-    print "ERROR: no away locations found. Exiting."
+    sys.stdout.write("No away locations found. Exiting.")
 
 # close SQL
 cursor.close()
