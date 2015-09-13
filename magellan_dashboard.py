@@ -20,7 +20,7 @@ args = parser.parse_args()
 config = ConfigParser.RawConfigParser()
 if os.path.isfile('magellan.cfg'):
     config.read('magellan.cfg')
-APIkey = config.get('Tipeboard', 'key')
+APIkey = config.get('Tipboard', 'key')
 BASEURL = config.get('Tipboard', 'baseurl')
 tileid = 'magellan'
 tiletype = 'cumulative_flow'
