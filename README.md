@@ -20,6 +20,7 @@ Possible outputs include histograms of time spent each week/month in the above s
 
 ## Scripts
 
+* magellan_dashboard.py - Upload histogram location information to a [tipboard](https://github.com/allegro/tipboard) dashboard
 * map_locations.py	- Generate a png thumbnail from OSM or GMaps of all "away" locations visited in a given week, month, or year.
 * loc_analyze.py - Determine if a given location qualifies as "home", "away", or "traveling"
 * plot_histogram.py - Make plots of week home/away/travel fractions for the past 10 weeks or the past year.
