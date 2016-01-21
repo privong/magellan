@@ -45,10 +45,10 @@ parser.add_argument('-y', '--year', type=int, default=None, action='store',
                     help='Year to use. If left blank, the current year will \
                          be used. If this is the only item specified, a map \
                          will be made of all away points during that year.')
-parser.add_argument('-u', '--uniquedist', action='store', default=None,
+parser.add_argument('-u', '--uniquedist', default=None, action='store',
                     help='Approximate distance (in km) points must be to be \
-                         considered "unique". Will override default value in\
-                         the configuration file.')
+                         considered "unique". If provided, will override \
+                         value in magellan.cfg.')
 parser.add_argument('-s', '--service', default='osm', action='store',
                     choices=['google', 'osm'],
                     help='Mapping service to use for generating static maps. \
