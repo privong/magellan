@@ -2,9 +2,15 @@
 
 ## 0.3.x Series
 
-### 0.3.2 (in progress)
+### 0.3.3 (2015 June 28)
+
+* fix bug in map_location.py, introduced in 0.3.2
+
+### 0.3.2 (2015 June 28)
 
 * add "comment" column to homeloc table. This is not currently used in the processing, but may be used in the future, to annotate magellan output.
+* fix single away location bug
+* improved screen output in map_locations.py
 
 ### 0.3.1 (2015 May 01)
 
