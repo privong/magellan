@@ -72,10 +72,14 @@ elif args.period == 'month':
         month = today.month-1
     else:
         month = args.month
+    if month == 0:
+        month = 12
 if args.year is None:
     year = (today.isocalendar())[0]
 else:
     year = args.year
+if args.month is None or args.month == 0:
+    year -= 1
 
 if args.period == 'week' and week < 0:
     year = year-1
