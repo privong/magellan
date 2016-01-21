@@ -36,12 +36,12 @@ parser.add_argument('-p', '--period', action='store', type=str, default='week',
                     choices=['week', 'month', 'year', 'all'],
                     help='Desired analysis period.')
 parser.add_argument('-w', '--week', action='store', type=int,
-                    default=False, help='Week to analyze (default, uses most \
+                    default=None, help='Week to analyze (default, uses most \
                     recent week)')
 parser.add_argument('-m', '--month', action='store', type=int,
-                    default=False, help='Month to analyze')
+                    default=None, help='Month to analyze')
 parser.add_argument('-y', '--year', action='store', type=int,
-                    default=False, help='Year. If not given, the current year \
+                    default=None, help='Year. If not given, the current year \
                     is used.')
 parser.add_argument('--maxtime', action='store', type=float, default=840.,
                     help="Maximum time separation (in hours) between adjacent \
@@ -63,21 +63,21 @@ ttime = 0		# travel time in minutes
 
 today = date.today()
 if args.period == 'week':
-    if not(args.week):
+    if args.week is None:
         week = (today.isocalendar())[1]-1
     else:
         week = args.week
 elif args.period == 'month':
-    if not(args.month):
+    if args.month is None:
         month = today.month-1
     else:
         month = args.month
-if not(args.year):
+if args.year is None:
     year = (today.isocalendar())[0]
 else:
     year = args.year
 
-if args.period == 'week' and week < 1:
+if args.period == 'week' and week < 0:
     year = year-1
     week = (date(year, 12, 31).isocalendar())[0]
 
