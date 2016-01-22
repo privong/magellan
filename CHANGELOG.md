@@ -2,6 +2,11 @@
 
 ## 0.3.x Series
 
+### 0.3.4 (2016 January 21)
+
+* bugfix: week=0 now correctly interpreted as the 0th week of the year, rather than as a non-specified parameter
+* bugfix: running ./loc_analyze.py in January with default options (or month=0) now correctly selects month 12 of the previous year
+
 ### 0.3.3 (2015 June 28)
 
 * fix bug in map_location.py, introduced in 0.3.2
