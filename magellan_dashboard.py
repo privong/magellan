@@ -38,8 +38,8 @@ args = parser.parse_args()
 config = ConfigParser.RawConfigParser()
 if os.path.isfile('magellan.cfg'):
     config.read('magellan.cfg')
-APIkey = config.get('Tipboard', 'KEY')
-BASEURL = config.get('Tipboard', 'BASEURL')
+APIkey = config.get('Tipboard', 'apikey')
+BASEURL = config.get('Tipboard', 'baseurl')
 if not(APIkey) or not(BASEURL):
     sys.stderr.write('Cannot load tipboard info from configuration. Exiting.\n')
     sys.exit(-1)
