@@ -58,7 +58,8 @@ trinidad = magellan.magellan()
 cursor = trinidad.initdb()
 
 if args.week:
-    print "Retreiving analyzed weekly data for the past 10 weeks...\n"
+    sys.stdout.write("Retreiving analyzed weekly data for the past 10 \
+weeks...\n")
 
     # get the previous iso week (to use as the end of the plot)
     today = date.today()
@@ -79,7 +80,8 @@ if args.week:
                   % (week-10, year)
     filen = 'latest.png'
 elif args.year:
-    print "Retreiving analyzed weekly data for the current year...\n"
+    sys.stdout.write("Retreiving analyzed weekly data for the current \
+year...\n")
     today = date.today()
     year = (today.isocalendar())[0]
     command = 'SELECT year,week,homefrac,awayfrac,travelfrac from \
@@ -91,10 +93,10 @@ cursor.execute(command)
 recs = cursor.fetchall()
 
 if len(recs) == 0:
-    print "ERROR: no analysis data found."
+    sys.stderr.write("ERROR: no analysis data found.\n")
     sys.exit
 
-print "Retreived %i results" % (len(recs))
+sys.stdout.write("Retreived %i results.\n" % (len(recs)))
 
 results = numpy.array(recs)
 if args.scaling == 'days':

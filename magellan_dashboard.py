@@ -69,7 +69,7 @@ cursor.close()
 trinidad.closedb()
 
 if len(recs) == 0:
-    print("ERROR: no analysis data found.")
+    sys.stderr.write("ERROR: no analysis data found.")
     sys.exit
 
 results = numpy.array(recs)

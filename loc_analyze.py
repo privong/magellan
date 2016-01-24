@@ -90,7 +90,8 @@ if args.period == 'week' and week < 0:
 # get home location from the 'homeloc' database
 # there should be a better way to select this...
 if args.period == 'week':
-    print "Loading home location for week %i of %i..." % (week, year)
+    sys.stdout.write("Loading home location for week %i of %i...\n" %
+                     (week, year))
     command = 'SELECT * FROM homeloc WHERE \
               (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) > %i) OR \
               (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) = %i AND WEEK(ENDDATE,1) >= %i) OR \
@@ -101,7 +102,8 @@ if args.period == 'week':
                  year, week, year,
                  year, week, year, week)
 elif args.period == 'month':
-    print "Loading home location for month %i of %i..." % (month, year)
+    sys.stdout.write("Loading home location for month %i of %i...\n" %
+                     (month, year))
     command = 'SELECT * FROM homeloc WHERE \
              (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE) <= %i AND \
               YEAR(ENDDATE) > %i) OR \
@@ -118,24 +120,24 @@ elif args.period == 'month':
                 year, year, month,
                 year, month, year)
 elif args.period == 'year':
-    print "Loading home location for %i..." % (year)
+    sys.stdout.write("Loading home location for %i...\n" % (year))
     command = 'SELECT * FROM homeloc WHERE \
                (YEAR(STARTDATE) <= %i AND YEAR(ENDDATE) >= %i)' \
                % (year, year)
 elif args.period == 'all':
-    print "Loading all home locations..."
+    sys.stdout.write("Loading all home locations...\n")
     command = 'SELECT * FROM homeloc ORDER BY STARTDATE'
 cursor.execute(command)
 recs = cursor.fetchall()
 
 mhlocs = 0
 if len(recs) > 1:
-    print "More than one home location for the specified time."
+    sys.stdout.write("More than one home location for the specified time.\n")
     mhlocs = 1
     hlocs = recs
 elif len(recs) == 0:
-    print "WARNING: no home location records found for the specified time. \
-           Assuming all records are 'away' or 'traveling'."
+    sys.stdout.write("WARNING: no home location records found for the \
+specified time. Assuming all records are 'away' or 'traveling'.\n")
     hlat = -1
     hlong = -1
     hradius = -1
@@ -146,6 +148,9 @@ else:
     hradius = (recs[0])[4]
     hlocs = 0
 
+# 'command' selects the records from the period of interest
+# 'command2' selects the final record from the previous period, so we can
+#   correctly tag the first point of the current period
 if args.period == 'week':
     command = 'SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i \
               ORDER by locations.UTC' % (week, year)
@@ -177,6 +182,8 @@ if len(recs) < 1:
                      interval. Exiting.\n')
     sys.exit()
 
+# fetch the final location from the previous time period, so we can properly
+# analyze/tag the first datapoint of this time period
 if args.period != 'all':
     cursor.execute(command2)
     preloc = cursor.fetchone()
@@ -190,7 +197,7 @@ else:
 nrecs = len(recs)
 loctype = 'away'
 d = 0
-print "Processing GPS records.."
+sys.stdout.write("Processing GPS records...\n")
 for rec1 in recs:
     if mhlocs:
         # figure out which homeloc is appropriate for this datestamp
@@ -280,21 +287,20 @@ for rec1 in recs:
     cursor.execute(command)
     # and loop to the next record
 
-# after we've iterated over the week write the totals, percentages of the week
-# back into the database for that week (check to see that there isn't already
-# an entry, ask before overwriting)
+# after we've iterated over the time period, write the totals and percentages
+# back into the database for that period (overwriting existing entries)
 totaltime = atime+htime+ttime
 
-print "%s recorded a total time of approximately %f hours from %i records." % \
-      (args.period, totaltime/60., nrecs)
-print "Replaced %i duplicate entries." % (d)
+sys.stdout.write("%s recorded a total time of approximately %f hours from %i \
+records.\n" % (args.period, totaltime/60., nrecs))
+sys.stdout.write("Replaced %i duplicate entries.\n" % (d))
 if args.period == 'week' or args.period == 'month':
-    print "Submitting totals to SQL database.."
-print("Summary:\n")
-print("\tHours\tFraction")
-print("Home:\t{0:1.0f}\t{1:0.2f}".format(htime/60., htime/totaltime))
-print("Away:\t{0:1.0f}\t{1:0.2f}".format(atime/60., atime/totaltime))
-print("Travel:\t{0:1.0f}\t{1:0.2f}".format(ttime/60., ttime/totaltime))
+    sys.stdout.write("Submitting totals to SQL database...\n")
+sys.stdout.write("Summary:\n\n")
+sys.stdout.write("\tHours\tFraction\n")
+sys.stdout.write("Home:\t{0:1.0f}\t{1:0.2f}\n".format(htime/60., htime/totaltime))
+sys.stdout.write("Away:\t{0:1.0f}\t{1:0.2f}\n".format(atime/60., atime/totaltime))
+sys.stdout.write("Travel:\t{0:1.0f}\t{1:0.2f}\n".format(ttime/60., ttime/totaltime))
 
 # submit to the database
 if args.period == 'week':
