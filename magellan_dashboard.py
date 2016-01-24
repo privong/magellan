@@ -21,6 +21,7 @@ import MySQLdb
 import ConfigParser
 from datetime import date
 import sys
+import os
 import requests
 import numpy
 import magellan
@@ -91,8 +92,8 @@ payload = {'tile':tiletype,
 
 datastr = '{"title":"'+str(year)+': Week '+str(week)+'", '
 datastr += '"series_list": ['
-for i in range(2, 5):
-    datastr += '{"label": "'+plotlabel[i-2]+'", "series": ['
+for i in range(3, 6):
+    datastr += '{"label": "'+plotlabel[i-3]+'", "series": ['
     for entry in results[:, i]:
         datastr += ' {0:1.4f},'.format(entry)
     datastr = datastr[:-1]
