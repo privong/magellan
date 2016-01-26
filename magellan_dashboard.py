@@ -31,8 +31,9 @@ import argparse
 parser = argparse.ArgumentParser(description='Push away stats to tipboard.')
 parser.add_argument('--scaling', default='days',
                     choices=['week', 'days', 'hours'],
-                    help='Show the y-axis scale as days in the week or as a \
-                          fraction of the total week?')
+                    help='Show the y-axis scale as days in the week, as a \
+                          fraction of the total week, or number of hours? \
+                          Default is days in the week.')
 args = parser.parse_args()
 
 # dashboard information
