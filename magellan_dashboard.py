@@ -91,6 +91,7 @@ else:
 payload = {'tile':tiletype,
            'key':tileid}
 
+# set up and send the plot data
 datastr = '{"title":"'+str(year)+': Week '+str(week)+'", '
 datastr += '"series_list": ['
 for i in range(3, 6):
@@ -103,6 +104,9 @@ payload['data'] = datastr[:-1] + ']}'
 
 r = requests.post(BASEURL+APIkey+'/push', data=payload)
 
+# set up and send the locations of tick marks on the plot
+# if more than 16 weeks don't show all the ticks, because that would be too
+# crowded
 valuestr = '{"ticks": ['
 if len(results[:,1]) > 16:
     step = 2
@@ -111,8 +115,10 @@ if len(results[:,1]) > 16:
 else:
     step = 1
     start = 0
-for entry in results[start::step, 1]:
-    valuestr += '[{0:1.0f}, "{0:1.0f}"], '.format(entry, entry)
+i = 1
+for entry in results[start::step, 0]:
+    valuestr += '[{0:d}, "{1:1.0f}"], '.format(i, entry)
+    i += 2
 valuestr = valuestr[:-2]
 valuestr += ']}'
 payload = {'value':valuestr}
