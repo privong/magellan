@@ -78,8 +78,10 @@ if args.year is None:
     year = (today.isocalendar())[0]
 else:
     year = args.year
-if args.month is None or args.month == 0:
+
+if args.period == 'month' and month == 0:
     year -= 1
+    month += 1
 
 if args.period == 'week' and week < 0:
     year = year-1
