@@ -98,6 +98,7 @@ for i in range(3, 6):
     datastr += '{"label": "'+plotlabel[i-3]+'", "series": ['
     for entry in results[:, i]:
         datastr += ' {0:1.4f},'.format(entry)
+    datastr = datastr + ' ' + datastr.rsplit(' ',1)[-1]
     datastr = datastr[:-1]
     datastr += ']},'
 payload['data'] = datastr[:-1] + ']}'
@@ -119,6 +120,7 @@ i = 1
 for entry in results[start::step, 0]:
     valuestr += '[{0:d}, "{1:1.0f}"], '.format(i, entry)
     i += 2
+valuestr = valuestr + '[{0:d}, "{1:1.0f}"], '.format(i, entry)
 valuestr = valuestr[:-2]
 valuestr += ']}'
 payload = {'value':valuestr}
