@@ -2,6 +2,9 @@
 
 ## 0.3.x Series
 
+### 0.3.x (in progress)
+
+* bugfix: loc_analyze.py input handling fix that was causing default analysis to occur for a year earlier than desired
 ### 0.3.4 (2016 January 21)
 
 * bugfix: week=0 now correctly interpreted as the 0th week of the year, rather than as a non-specified parameter
