@@ -288,7 +288,8 @@ totaltime = atime+htime+ttime
 print "%s recorded a total time of approximately %f hours from %i records." % \
       (args.period, totaltime/60., nrecs)
 print "Replaced %i duplicate entries." % (d)
-print "Submitting totals to SQL database.."
+if args.period == 'week' or args.period == 'month':
+    print "Submitting totals to SQL database.."
 
 # submit to the database
 if args.period == 'week':
