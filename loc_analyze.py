@@ -290,6 +290,11 @@ print "%s recorded a total time of approximately %f hours from %i records." % \
 print "Replaced %i duplicate entries." % (d)
 if args.period == 'week' or args.period == 'month':
     print "Submitting totals to SQL database.."
+print("Summary:\n")
+print("\tHours\tFraction")
+print("Home:\t{0:1.0f}\t{1:0.2f}".format(htime/60., htime/totaltime))
+print("Away:\t{0:1.0f}\t{1:0.2f}".format(atime/60., atime/totaltime))
+print("Travel:\t{0:1.0f}\t{1:0.2f}".format(ttime/60., ttime/totaltime))
 
 # submit to the database
 if args.period == 'week':

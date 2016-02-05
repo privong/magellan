@@ -4,7 +4,15 @@
 
 ### 0.3.x (in progress)
 
-* bugfix: loc_analyze.py input handling fix that was causing default analysis to occur for a year earlier than desired
+#### Enhancements
+
+* loc_anlayze.py now prints a summary of the time period
+
+#### Bug Fixes
+
+* loc_analyze.py no longer claims data is being saved to the SQL database unless it actually is
+* loc_analyze.py input handling fix that was causing default analysis to occur for a year earlier than desired
+
 ### 0.3.4 (2016 January 21)
 
 * bugfix: week=0 now correctly interpreted as the 0th week of the year, rather than as a non-specified parameter
