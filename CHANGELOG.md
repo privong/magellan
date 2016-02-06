@@ -2,7 +2,7 @@
 
 ## 0.3.x Series
 
-### 0.3.x (in progress)
+### 0.3.5 (2016 February 06)
 
 #### Enhancements
 
