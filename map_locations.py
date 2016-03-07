@@ -186,7 +186,7 @@ if len(uniqueaway) != 0:
     if (args.service == 'google' and len(mapurl) < 2000) or \
        args.service == 'osm':
         if args.plotfile is None:
-            fname = '/srv/http/local/location/%i-%i.png' % (year, week)
+            fname = '/srv/http/local/location/{0:04d}-{1:02d}.png'.format(year, week)
         else:
             fname = args.plotfile
         fp = open(fname, "wb")
