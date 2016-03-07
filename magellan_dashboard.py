@@ -92,7 +92,8 @@ payload = {'tile':tiletype,
            'key':tileid}
 
 # set up and send the plot data
-datastr = '{"title":"'+str(year)+': Week '+str(week)+'", '
+datastr = '{"title":"Currently week '+str(week)+'.<br>Week ' + str(week-1) + \
+' stats:", '
 datastr += '"series_list": ['
 for i in range(3, 6):
     datastr += '{"label": "'+plotlabel[i-3]+'", "series": ['
