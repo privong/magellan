@@ -25,6 +25,7 @@
 import MySQLdb
 import time
 import sys
+import os
 import re
 import ConfigParser
 import magellan
@@ -47,6 +48,8 @@ f = 0
 for filename in args.files:
     i = 0
     d = 0
+    if not(os.path.isfile(filename)):
+        continue
     infile = open(filename, "r")
     if re.search('gpx', filename):
         import gpxpy
