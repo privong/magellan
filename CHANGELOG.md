@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.x Series
+
+### 0.4.0 (in progress)
+
+#### Enhancements
+
+- Add `magellan_dashboard.py` to show analytics on a [tipboard](https://github.com/allegro/tipboard) instance.
+
+#### Bug Fixes
+
+- Labeling of away locations on map is now correctly sequential.
+
 ## 0.3.x Series
 
 ### 0.3.5 (2016 February 06)
