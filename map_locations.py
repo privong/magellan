@@ -157,7 +157,7 @@ if args.service == 'google':
              (args.imgsize, args.imgsize)
     for loc in uniqueaway:
         mapurl = mapurl + "&markers=color:red|label:%i|%f,%f" % \
-                          (naway, loc[0], loc[1])
+                          (naway+1, loc[0], loc[1])
         naway += 1
     if len(uniqueaway) == 2:
         mapurl = mapurl+'&zoom=10'
@@ -167,7 +167,7 @@ elif args.service == 'osm':
     mapurl = "http://staticmap.openstreetmap.de/staticmap.php?maptype=osmarenderer&size=%ix%i&markers=" % \
              (args.imgsize, args.imgsize)
     for loc in uniqueaway:
-        mapurl = mapurl + "%f,%f,lightblue%i|" % (loc[0], loc[1], naway)
+        mapurl = mapurl + "%f,%f,lightblue%i|" % (loc[0], loc[1], naway+3)
         naway += 1
     mapurl = mapurl[:-1]    # remove trailing '|' to avoid an extra marker
     maxdist = [0]
