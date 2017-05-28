@@ -4,7 +4,7 @@
 #
 # Generate and save a map of locations visited, based on GPS logs.
 #
-# Copyright (C) 2014-2015 George C. Privon
+# Copyright (C) 2014-2015,2017 George C. Privon
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,8 @@ import MySQLdb
 import sys
 import time
 import math
-import pycurl
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
 import numpy as np
 import ConfigParser
 import magellan
@@ -48,11 +49,6 @@ parser.add_argument('-y', '--year', type=int, default=None, action='store',
 parser.add_argument('-u', '--uniquedist', default=60, action='store',
                     help='Approximate distance (in km) points must be to be \
                          considered "unique".')
-parser.add_argument('-s', '--service', default='osm', action='store',
-                    choices=['google', 'osm'],
-                    help='Mapping service to use for generating static maps. \
-                          Defaults to \'osm\'. Other option: \'google\' for \
-                          Google Maps.')
 parser.add_argument('-i', '--imgsize', default=800, action='store', type=int,
                     help='Number of pixels on a side for the maps image.')
 parser.add_argument('-p', '--plotfile', default=None, action='store',
@@ -145,41 +141,28 @@ for place in awaylocs[1:]:
     #        (tempaway[0], tempaway[1])
     uniqueaway.append(tempaway)
 
+
+"""
+1. Work out the lat/lon extent of the visited locations.
+2. Do a gaussian smoothing of all the positions.
+    - use the positional accuracy as the sigma for the gaussian ofg
+      each point.
+    - be sure to appropriately translate the distance uncertainty with the
+      corresponding longitude uncertainty (i.e., the gaussian should be
+      elliptical).
+3. Plot gaussian field below the border lines but above any other coloring
+
+Eventually enable some fine-grained control by the user of what should be
+shown on the maps.
+"""
+
 naway = 1
-if args.service == 'google':
-    # https://code.google.com/apis/maps/documentation/staticmaps/
-    mapurl = "http://maps.google.com/maps/api/staticmap?size=%ix%i&maptype=roadmap" % \
-             (args.imgsize, args.imgsize)
     for loc in uniqueaway:
         mapurl = mapurl + "&markers=color:red|label:%i|%f,%f" % \
                           (naway, loc[0], loc[1])
         naway += 1
     if len(uniqueaway) == 2:
         mapurl = mapurl+'&zoom=10'
-    mapurl = mapurl + "&sensor=false"
-elif args.service == 'osm':
-    # see http://staticmap.openstreetmap.de/
-    mapurl = "http://staticmap.openstreetmap.de/staticmap.php?maptype=osmarenderer&size=%ix%i&markers=" % \
-             (args.imgsize, args.imgsize)
-    for loc in uniqueaway:
-        mapurl = mapurl + "%f,%f,lightblue%i|" % (loc[0], loc[1], naway)
-        naway += 1
-    mapurl = mapurl[:-1]    # remove trailing '|' to avoid an extra marker
-    maxdist = [0]
-    for loc in uniqueaway:  # compute the distance between pairs of away pts
-        for loc2 in uniqueaway:
-            newdist = (np.sqrt((loc[0] - loc2[0])**2 +
-                       (loc[1] - loc2[1])**2))
-            if newdist > maxdist[0]:
-                maxdist = [newdist, [(loc[0] + loc2[0]) / 2., 
-                                     (loc[1] + loc2[1]) / 2.]]
-    if maxdist == [0]:
-        # likely happens because there was only 1 uniqueaway
-        maxdist = [1, uniqueaway[0]]
-    mapurl = mapurl + "&center=%f,%f" % (maxdist[1][0], maxdist[1][1])
-    mapurl = mapurl + "&zoom=%i" % \
-             (np.floor(np.log((args.imgsize / 256.) * 
-                              360. / maxdist[0]) / np.log(2)))
 
 if len(uniqueaway) != 0:
     sys.stdout.write("Requesting map of %i unique locations..." % (len(uniqueaway)))
@@ -191,15 +174,7 @@ if len(uniqueaway) != 0:
             fname = args.plotfile
         fp = open(fname, "wb")
 
-        curl = pycurl.Curl()
-        curl.setopt(pycurl.URL, mapurl)
-        curl.setopt(pycurl.WRITEDATA, fp)
-        curl.perform()
-        curl.close()
-        fp.close()
         sys.stdout.write("Map saved to " + fname + "\n")
-    else:
-        sys.stderr.write("ERROR: request url exceeds google static maps API limit Exiting.")
 else:
     sys.stdout.write("No away locations found. Exiting.")
 
