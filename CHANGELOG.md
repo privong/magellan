@@ -2,6 +2,17 @@
 
 ## 0.3.x Series
 
+### 0.3.next (TBD)
+
+#### Enhancements
+
+* More accurate summary statistics when importing GPS records.
+* Internal changes working to ensure python3 support
+
+#### Bug Fixes
+
+* Some checking for the existence of a file
+
 ### 0.3.5 (2016 February 06)
 
 #### Enhancements
