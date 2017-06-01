@@ -33,6 +33,51 @@ from datetime import date
 import argparse
 
 
+def plot_map(args, positions):
+    """
+    Map the locations of recorded GPS positions.
+    """
+
+    fig = plt.figure(figsize=(16, 12))
+    ax = plt.axes(projection=ccrs.PlateCarree())
+    ax.coastlines()
+    ax.set_global()
+
+    countries = cfeature.NaturalEarthFeature(category='cultural',
+                                             name='admin_0_countries',
+                                             scale='50m',
+                                             facecolor='none')
+
+    states_provinces = cfeature.NaturalEarthFeature(category='cultural',
+                                                    name='admin_1_states_provinces_lines',
+                                                    scale='50m',
+                                                    facecolor='none')
+
+    SOURCE = 'Natural Earth'
+    LICENSE = 'public domain'
+
+    ax.add_feature(cfeature.LAND)
+    ax.add_feature(cfeature.OCEAN)
+    ax.add_feature(cfeature.LAKES)
+    ax.add_feature(cfeature.COASTLINE)
+    ax.add_feature(countries, edgecolor='gray')
+    ax.add_feature(states_provinces, edgecolor='gray')
+
+    ax.gridlines(draw_labels=True)
+
+    if positions.shape:
+        ax.scatter(positions['lon'],
+                   positions['lat'],
+                   marker='o',
+                   color='green',
+                   transform=ccrs.PlateCarree(),
+                   zorder=20)
+
+    fig.savefig(args.plotfile,
+                bbox_inches='tight')
+
+
+
 parser = argparse.ArgumentParser(description='Generate a map of unique away \
                                  locations.')
 parser.add_argument('-w', '--week', type=int, default=None, action='store',
