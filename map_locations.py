@@ -1,10 +1,10 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #
 # map_locations.py
 #
 # Generate and save a map of locations visited, based on GPS logs.
 #
-# Copyright (C) 2014-2015,2017 George C. Privon
+# Copyright (C) 2014-2018 George C. Privon
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

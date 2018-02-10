@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #
 # sql_import.py
 #
@@ -6,7 +6,7 @@
 # The log file should have the following format:
 # UTC time,lat,long,horiz accuracy,alt,vert accuracy,speed,heading,battery
 #
-# Copyright (C) 2014-2015 George C. Privon
+# Copyright (C) 2014-2018 George C. Privon
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

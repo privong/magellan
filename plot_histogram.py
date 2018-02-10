@@ -1,10 +1,10 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #
 # plot_histogram.py
 #
 # Plot already computed weekly analysis.
 #
-# Copyright (C) 2014-2015 George C. Privon
+# Copyright (C) 2014-2018 George C. Privon
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
