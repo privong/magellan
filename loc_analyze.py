@@ -37,17 +37,17 @@ parser.add_argument('-p', '--period', action='store', type=str, default='week',
                     help='Desired analysis period.')
 parser.add_argument('-w', '--week', action='store', type=int,
                     default=None, help='Week to analyze (default, uses most \
-                    recent week)')
+recent week)')
 parser.add_argument('-m', '--month', action='store', type=int,
                     default=None, help='Month to analyze')
 parser.add_argument('-y', '--year', action='store', type=int,
                     default=None, help='Year. If not given, the current year \
-                    is used.')
+is used.')
 parser.add_argument('--maxtime', action='store', type=float, default=840.,
                     help="Maximum time separation (in hours) between adjacent \
-                         location points. Points separated by a larger value \
-                         will not be considered as connected (for the \
-                         purpose of determining if a point counts as travel).")
+location points. Points separated by a larger value \
+will not be considered as connected (for the \
+purpose of determining if a point counts as travel).")
 args = parser.parse_args()
 
 trinidad = magellan.magellan()
@@ -174,7 +174,7 @@ cursor.execute(command)
 recs = cursor.fetchall()
 if len(recs) < 1:
     sys.stderr.write('ERROR: no records found for the requested time \
-                     interval. Exiting.\n')
+interval. Exiting.\n')
     sys.exit()
 
 if args.period != 'all':
