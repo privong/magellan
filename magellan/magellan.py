@@ -16,7 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import math as _math
-import ConfigParser as _ConfigParser
+try:
+    import configparser
+except ModuleNotFoundError:
+    import ConfigParser as configparser
 import MySQLdb as _MySQLdb
 import sys as _sys
 import os as _os
@@ -58,7 +61,7 @@ class magellan:
                                          db=Mdb)
             scur = self.scon.cursor()
             return scur
-        except _MySQLdb.OperationalError, e:
+        except _MySQLdb.OperationalError as e:
             _sys.stderr.write(e.args[1]+'\n')
             _sys.exit(1)
 
