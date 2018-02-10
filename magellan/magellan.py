@@ -17,7 +17,10 @@
 
 
 import math as _math
-import ConfigParser as _ConfigParser
+try:
+    import configparser
+except ModuleNotFoundError:
+    import ConfigParser as configparser
 import MySQLdb as _MySQLdb
 import sys as _sys
 import os as _os
@@ -36,7 +39,7 @@ class magellan:
             _sys.stderr.write('Error magellan.cfg file not found in working \
                                directory. Exiting.\n')
             _sys.exit(-1)
-        config = _ConfigParser.RawConfigParser()
+        config = configparser.RawConfigParser()
         config.read('magellan.cfg')
         if not(config.get('Server Config', 'server')) or \
             not(config.get('Server Config', 'user')) or \
@@ -56,7 +59,7 @@ class magellan:
                                      db=Mdb)
             scur = self.scon.cursor()
             return scur
-        except _MySQLdb.OperationalError, e:
+        except _MySQLdb.OperationalError as e:
             _sys.stderr.write(e.args[1]+'\n')
             _sys.exit(1)
     

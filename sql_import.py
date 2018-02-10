@@ -26,7 +26,10 @@ import MySQLdb
 import time
 import sys
 import re
-import ConfigParser
+try:
+    import configparser
+except ModuleNotFoundError:
+    import ConfigParser as configparser
 import magellan
 import argparse
 
