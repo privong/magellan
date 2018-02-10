@@ -17,9 +17,9 @@
 
 import math as _math
 try:
-    import configparser
+    import _configparser
 except ModuleNotFoundError:
-    import ConfigParser as configparser
+    import ConfigParser as _configparser
 import MySQLdb as _MySQLdb
 import sys as _sys
 import os as _os
@@ -27,7 +27,7 @@ import os as _os
 
 class magellan:
     def __init__(self):
-        self.config = _ConfigParser.RawConfigParser()
+        self.config = _configparser.RawConfigParser()
         if _os.path.isfile('magellan.cfg'):
             self.config.read('magellan.cfg')
         else:

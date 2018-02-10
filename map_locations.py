@@ -27,10 +27,6 @@ import time
 import math
 import pycurl
 import numpy as np
-try:
-    import configparser
-except ModuleNotFoundError:
-    import ConfigParser as configparser
 import magellan
 from datetime import date
 import argparse

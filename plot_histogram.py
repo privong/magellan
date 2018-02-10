@@ -27,10 +27,6 @@ import math
 import numpy
 import MySQLdb
 import argparse
-try:
-    import configparser
-except ModuleNotFoundError:
-    import ConfigParser as configparser
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt

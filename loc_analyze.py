@@ -25,10 +25,6 @@ import MySQLdb
 import sys
 import time
 import math
-try:
-    import configparser
-except ModuleNotFoundError:
-    import ConfigParser as configparser
 import magellan
 from datetime import date
 import argparse
