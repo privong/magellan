@@ -24,7 +24,6 @@ import MySQLdb
 import sys
 import time
 import math
-import ConfigParser
 import magellan
 from datetime import date
 import argparse

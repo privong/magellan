@@ -27,7 +27,6 @@ import math
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import numpy as np
-import ConfigParser
 import magellan
 from datetime import date
 import argparse

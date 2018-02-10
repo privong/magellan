@@ -27,7 +27,6 @@ import time
 import sys
 import os
 import re
-import ConfigParser
 import magellan
 import argparse
 

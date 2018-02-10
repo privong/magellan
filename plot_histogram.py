@@ -26,7 +26,6 @@ import math
 import numpy
 import MySQLdb
 import argparse
-import ConfigParser
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
