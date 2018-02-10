@@ -12,6 +12,8 @@
 #### Bug Fixes
 
 * Some checking for the existence of a file
+* rename homeloc table column "long" -> "lon" to avoid conflict with MySQL variable type
+* more specific homeloc column retrieval to protect against issues with future database enhancements
 
 ### 0.3.5 (2016 February 06)
 

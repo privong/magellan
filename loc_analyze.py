@@ -91,7 +91,7 @@ if args.period == 'week' and week < 0:
 # there should be a better way to select this...
 if args.period == 'week':
     print "Loading home location for week %i of %i..." % (week, year)
-    command = 'SELECT * FROM homeloc WHERE \
+    command = 'SELECT startdate,enddate,lat,lon,homeradiu FROM homeloc WHERE \
               (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) > %i) OR \
               (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) = %i AND WEEK(ENDDATE,1) >= %i) OR \
               (YEAR(STARTDATE) = %i AND WEEK(STARTDATE,1) <= %i AND YEAR(ENDDATE) > %i) OR \
@@ -102,7 +102,7 @@ if args.period == 'week':
                  year, week, year, week)
 elif args.period == 'month':
     print "Loading home location for month %i of %i..." % (month, year)
-    command = 'SELECT * FROM homeloc WHERE \
+    command = 'SELECT startdate,enddate,lat,lon,homeradiu FROM homeloc WHERE \
              (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE) <= %i AND \
               YEAR(ENDDATE) > %i) OR \
              (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE) <= %i AND \
@@ -119,12 +119,12 @@ elif args.period == 'month':
                 year, month, year)
 elif args.period == 'year':
     print "Loading home location for %i..." % (year)
-    command = 'SELECT * FROM homeloc WHERE \
+    command = 'SELECT startdate,enddate,lat,lon,homeradiu FROM homeloc WHERE \
                (YEAR(STARTDATE) <= %i AND YEAR(ENDDATE) >= %i)' \
                % (year, year)
 elif args.period == 'all':
     print "Loading all home locations..."
-    command = 'SELECT * FROM homeloc ORDER BY STARTDATE'
+    command = 'SELECT startdate,enddate,lat,lon,homeradiu FROM homeloc ORDER BY STARTDATE'
 cursor.execute(command)
 recs = cursor.fetchall()
 
@@ -137,12 +137,12 @@ elif len(recs) == 0:
     print "WARNING: no home location records found for the specified time. \
            Assuming all records are 'away' or 'traveling'."
     hlat = -1
-    hlong = -1
+    hlon = -1
     hradius = -1
     hlocs = 0
 else:
     hlat = (recs[0])[2]
-    hlong = (recs[0])[3]
+    hlon = (recs[0])[3]
     hradius = (recs[0])[4]
     hlocs = 0
 
@@ -200,7 +200,7 @@ for rec1 in recs:
             if hopt[0] <= rec1[0].date() and hopt[1] >= rec1[0].date():
                 # have our home location
                 hlat = hopt[2]
-                hlong = hopt[3]
+                hlon = hopt[3]
                 hradius = hopt[4]
             i = i+1
     if rec1 == rec0:
@@ -211,7 +211,7 @@ for rec1 in recs:
                 loctype = 'away'
         else:
             # first check if the rec is within the home distance
-            dist = magellan.GreatCircDist([hlat, hlong], rec0[1:])
+            dist = magellan.GreatCircDist([hlat, hlon], rec0[1:])
             if dist > hradius:
                 # we're outside the home radius. chock this up as away
                 # atime+=dechrs*60.
@@ -223,7 +223,7 @@ for rec1 in recs:
     else:
         if hradius != -1:
             # first check if the rec is within the home distance
-            dist = magellan.GreatCircDist([hlat, hlong], rec1[1:])
+            dist = magellan.GreatCircDist([hlat, hlon], rec1[1:])
             tdiff = rec1[0]-rec0[0]
             dechrs = tdiff.days*24+tdiff.seconds/3600.
             if dist > hradius:
