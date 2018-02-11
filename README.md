@@ -10,7 +10,7 @@ Possible outputs include histograms of time spent each week/month in the above s
 * python-mysqldb
 * matplotlib (for histogram plotting)
 * numpy
-* pycurl (for map retrieval)
+* cartopy (for map generation)
 
 ## Documentation
 
