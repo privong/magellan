@@ -2,7 +2,7 @@
 
 ## 0.4.x Series
 
-### 0.4.0 (in progress)
+### 0.4.0 (2018 February 11)
 
 #### Enhancements
 
