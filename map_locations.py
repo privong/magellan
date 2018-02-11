@@ -207,7 +207,7 @@ shown on the maps.
 """
 
 if len(uniqueaway) != 0:
-    sys.stdout.write("Generating map of %i unique locations..." % (len(uniqueaway)))
+    sys.stdout.write("Generating map of %i unique locations...\n" % (len(uniqueaway)))
     plot_map(uniqueaway, args.plotfile)
     sys.stdout.write("Map saved to " + args.plotfile + "\n")
 else:
