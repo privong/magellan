@@ -1,8 +1,8 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """
 magellan_dashboard.py
 
-Copyright (C) 2015-2017 George C. Privon
+Copyright (C) 2015-2018 George C. Privon
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import MySQLdb
-import ConfigParser
+import configparser
 from datetime import date
 import sys
 import os
@@ -38,7 +38,7 @@ parser.add_argument('--scaling', default='days',
 args = parser.parse_args()
 
 # dashboard information
-config = ConfigParser.RawConfigParser()
+config = configparser.RawConfigParser()
 if os.path.isfile('magellan.cfg'):
     config.read('magellan.cfg')
 APIkey = config.get('Tipboard', 'apikey')
