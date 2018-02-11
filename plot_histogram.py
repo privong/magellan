@@ -26,10 +26,7 @@ import math
 import numpy
 import MySQLdb
 import argparse
-try:
-    import configparser
-except ModuleNotFoundError:
-    import ConfigParser as configparser
+import ConfigParser
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
@@ -61,7 +58,7 @@ trinidad = magellan.magellan()
 cursor = trinidad.initdb()
 
 if args.week:
-    print("Retreiving analyzed weekly data for the past 10 weeks...\n")
+    print "Retreiving analyzed weekly data for the past 10 weeks...\n"
 
     # get the previous iso week (to use as the end of the plot)
     today = date.today()
@@ -82,7 +79,7 @@ if args.week:
                   % (week-10, year)
     filen = 'latest.png'
 elif args.year:
-    print("Retreiving analyzed weekly data for the current year...\n")
+    print "Retreiving analyzed weekly data for the current year...\n"
     today = date.today()
     year = (today.isocalendar())[0]
     command = 'SELECT year,week,homefrac,awayfrac,travelfrac from \
@@ -94,10 +91,10 @@ cursor.execute(command)
 recs = cursor.fetchall()
 
 if len(recs) == 0:
-    print("ERROR: no analysis data found.")
+    print "ERROR: no analysis data found."
     sys.exit
 
-print("Retreived %i results" % (len(recs)))
+print "Retreived %i results" % (len(recs))
 
 results = numpy.array(recs)
 if args.scaling == 'days':
