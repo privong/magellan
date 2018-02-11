@@ -1,10 +1,10 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """
 map_locations.py
 
 Generate and save a map of locations visited, based on GPS logs.
 
-Copyright (C) 2014-2015, 2017 George C. Privon
+Copyright (C) 2014-2018 George C. Privon
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,11 +25,58 @@ import MySQLdb
 import sys
 import time
 import math
-import pycurl
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
 import numpy as np
 import magellan
 from datetime import date
 import argparse
+import matplotlib.pyplot as plt
+
+
+def plot_map(positions, plotfile):
+    """
+    Map the locations of recorded GPS positions.
+    """
+
+    fig = plt.figure(figsize=(16, 12))
+    ax = plt.axes(projection=ccrs.PlateCarree())
+    ax.coastlines()
+    ax.set_global()
+
+    countries = cfeature.NaturalEarthFeature(category='cultural',
+                                             name='admin_0_countries',
+                                             scale='50m',
+                                             facecolor='none')
+
+    states_provinces = cfeature.NaturalEarthFeature(category='cultural',
+                                                    name='admin_1_states_provinces_lines',
+                                                    scale='50m',
+                                                    facecolor='none')
+
+    SOURCE = 'Natural Earth'
+    LICENSE = 'public domain'
+
+    ax.add_feature(cfeature.LAND)
+    ax.add_feature(cfeature.OCEAN)
+    ax.add_feature(cfeature.LAKES)
+    ax.add_feature(cfeature.COASTLINE)
+    ax.add_feature(countries, edgecolor='gray')
+    ax.add_feature(states_provinces, edgecolor='gray')
+
+    ax.gridlines(draw_labels=True)
+
+    if positions.shape:
+        ax.scatter(positions['lon'],
+                   positions['lat'],
+                   marker='o',
+                   color='green',
+                   transform=ccrs.PlateCarree(),
+                   zorder=20)
+
+    fig.savefig(plotfile,
+                bbox_inches='tight')
+
 
 
 parser = argparse.ArgumentParser(description='Generate a map of unique away \
@@ -49,11 +96,6 @@ parser.add_argument('-u', '--uniquedist', default=None, action='store',
                     help='Approximate distance (in km) points must be to be \
                          considered "unique". If provided, will override \
                          value in magellan.cfg.')
-parser.add_argument('-s', '--service', default='osm', action='store',
-                    choices=['google', 'osm'],
-                    help='Mapping service to use for generating static maps. \
-                          Defaults to \'osm\'. Other option: \'google\' for \
-                          Google Maps.')
 parser.add_argument('-i', '--imgsize', default=800, action='store', type=int,
                     help='Number of pixels on a side for the maps image.')
 parser.add_argument('-p', '--plotfile', default=None, action='store',
@@ -139,75 +181,35 @@ for rec1 in recs[1:]:
         # no match, add this location to the unique locations list
         awaylocs.append([[thisloc[0][0], thisloc[0][1]]])
 
-uniqueaway = [[np.mean([awaylocs[0][0][0] for i in range(len(awaylocs[0]))]),
-              np.mean([awaylocs[0][0][1] for i in range(len(awaylocs[0]))])]]
-#mapurl = mapurl + "&markers=color:red|label:A|%f,%f" % \
-#         (uniqueaway[0][0], uniqueaway[0][1])
-for place in awaylocs[1:]:
-    tempaway = [np.mean([place[i][0] for i in range(len(place))]),
-                  np.mean([place[i][1] for i in range(len(place))])]
-    #mapurl = mapurl + "&markers=color:red|label:A|%f,%f" % \
-    #        (tempaway[0], tempaway[1])
-    uniqueaway.append(tempaway)
+uniqueaway = []
+for place in awaylocs:
+    meanlat = np.mean([place[i][0] for i in range(len(place))])
+    meanlon = np.mean([place[i][1] for i in range(len(place))])
+    uniqueaway.append((meanlat, meanlon))
 
-naway = 0
-if args.service == 'google':
-    # https://code.google.com/apis/maps/documentation/staticmaps/
-    mapurl = "http://maps.google.com/maps/api/staticmap?size=%ix%i&maptype=roadmap" % \
-             (args.imgsize, args.imgsize)
-    for loc in uniqueaway:
-        mapurl = mapurl + "&markers=color:red|label:%i|%f,%f" % \
-                          (naway+1, loc[0], loc[1])
-        naway += 1
-    if len(uniqueaway) == 2:
-        mapurl = mapurl+'&zoom=10'
-    mapurl = mapurl + "&sensor=false"
-elif args.service == 'osm':
-    # see http://staticmap.openstreetmap.de/
-    mapurl = "http://staticmap.openstreetmap.de/staticmap.php?maptype=osmarenderer&size=%ix%i&markers=" % \
-             (args.imgsize, args.imgsize)
-    for loc in uniqueaway:
-        mapurl = mapurl + "%f,%f,lightblue%i|" % (loc[0], loc[1], naway+3)
-        naway += 1
-    mapurl = mapurl[:-1]    # remove trailing '|' to avoid an extra marker
-    maxdist = [0]
-    for loc in uniqueaway:  # compute the distance between pairs of away pts
-        for loc2 in uniqueaway:
-            newdist = (np.sqrt((loc[0] - loc2[0])**2 +
-                       (loc[1] - loc2[1])**2))
-            if newdist > maxdist[0]:
-                maxdist = [newdist, [(loc[0] + loc2[0]) / 2.,
-                                     (loc[1] + loc2[1]) / 2.]]
-    if naway > 1:
-        mapurl = mapurl + "&center=%f,%f" % (maxdist[1][0], maxdist[1][1])
-        mapurl = mapurl + "&zoom=%i" % \
-                 (np.floor(np.log((args.imgsize / 256.) *
-                                  360. / maxdist[0]) / np.log(2)))
-    else:
-        mapurl = mapurl + "&center=%f,%f" % (uniqueaway[0][0], uniqueaway[0][1])
-        mapurl = mapurl + "&zoom=%i" % \
-                 (np.floor(np.log((args.imgsize / 256.) *
-                                  360. / 60) / np.log(2)))
+uniqueaway = np.array(uniqueaway,
+                      dtype=[('lat', float),
+                             ('lon', float)])
+
+latrange = (np.min(uniqueaway['lat']), np.max(uniqueaway['lat']))
+lonrange = (np.min(uniqueaway['lon']), np.max(uniqueaway['lon']))
+"""
+2. Do a gaussian smoothing of all the positions.
+    - use the positional accuracy as the sigma for the gaussian ofg
+      each point.
+    - be sure to appropriately translate the distance uncertainty with the
+      corresponding longitude uncertainty (i.e., the gaussian should be
+      elliptical).
+3. Plot gaussian field below the border lines but above any other coloring
+
+Eventually enable some fine-grained control by the user of what should be
+shown on the maps.
+"""
 
 if len(uniqueaway) != 0:
-    sys.stdout.write("Requesting map of %i unique locations...\n" % (len(uniqueaway)))
-    if (args.service == 'google' and len(mapurl) < 2000) or \
-       args.service == 'osm':
-        if args.plotfile is None:
-            fname = '/srv/http/local/location/{0:04d}-{1:02d}.png'.format(year, week)
-        else:
-            fname = args.plotfile
-        fp = open(fname, "wb")
-
-        curl = pycurl.Curl()
-        curl.setopt(pycurl.URL, mapurl)
-        curl.setopt(pycurl.WRITEDATA, fp)
-        curl.perform()
-        curl.close()
-        fp.close()
-        sys.stdout.write("Map saved to " + fname + "\n")
-    else:
-        sys.stderr.write("ERROR: request url exceeds google static maps API limit Exiting.\n")
+    sys.stdout.write("Generating map of %i unique locations..." % (len(uniqueaway)))
+    plot_map(uniqueaway, args.plotfile)
+    sys.stdout.write("Map saved to " + args.plotfile + "\n")
 else:
     sys.stdout.write("No away locations found. Exiting.\n")
 

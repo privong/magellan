@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """
 sql_import.py
 
@@ -6,7 +6,7 @@ Load a textfile (CSV) of GPS data and store it into a SQL database.
 The log file should have the following format:
 UTC time,lat,long,horiz accuracy,alt,vert accuracy,speed,heading,battery
 
-Copyright (C) 2014-2015, 2017 George C. Privon
+Copyright (C) 2014-2018 George C. Privon
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import MySQLdb
 import time
 import sys
+import os
 import re
 import magellan
 import argparse
@@ -47,6 +48,8 @@ f = 0
 for filename in args.files:
     i = 0
     d = 0
+    if not(os.path.isfile(filename)):
+        continue
     infile = open(filename, "r")
     if re.search('gpx', filename):
         import gpxpy
@@ -135,5 +138,5 @@ for filename in args.files:
 scur.close()
 trinidad.closedb()
 
-sys.stdout.write("%i total new records imported. %i duplicates replaced.\n" %
-                 (e, f))
+sys.stdout.write("%i total records imported. %i new and %i duplicates.\n" %
+                 (e, e-f, f))
