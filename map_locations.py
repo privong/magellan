@@ -30,9 +30,10 @@ import numpy as np
 import magellan
 from datetime import date
 import argparse
+import matplotlib.pyplot as plt
 
 
-def plot_map(args, positions):
+def plot_map(positions, plotfile):
     """
     Map the locations of recorded GPS positions.
     """
@@ -72,7 +73,7 @@ def plot_map(args, positions):
                    transform=ccrs.PlateCarree(),
                    zorder=20)
 
-    fig.savefig(args.plotfile,
+    fig.savefig(plotfile,
                 bbox_inches='tight')
 
 
@@ -174,20 +175,19 @@ for rec1 in recs[1:]:
         # no match, add this location to the unique locations list
         awaylocs.append([[thisloc[0][0], thisloc[0][1]]])
 
-uniqueaway = [[np.mean([awaylocs[0][0][0] for i in range(len(awaylocs[0]))]),
-              np.mean([awaylocs[0][0][1] for i in range(len(awaylocs[0]))])]]
-#mapurl = mapurl + "&markers=color:red|label:A|%f,%f" % \
-#         (uniqueaway[0][0], uniqueaway[0][1])
-for place in awaylocs[1:]:
-    tempaway = [np.mean([place[i][0] for i in range(len(place))]),
-                  np.mean([place[i][1] for i in range(len(place))])]
-    #mapurl = mapurl + "&markers=color:red|label:A|%f,%f" % \
-    #        (tempaway[0], tempaway[1])
-    uniqueaway.append(tempaway)
+uniqueaway = []
+for place in awaylocs:
+    meanlat = np.mean([place[i][0] for i in range(len(place))])
+    meanlon = np.mean([place[i][1] for i in range(len(place))])
+    uniqueaway.append((meanlat, meanlon))
 
+uniqueaway = np.array(uniqueaway,
+                      dtype=[('lat', float),
+                             ('lon', float)])
 
+latrange = (np.min(uniqueaway['lat']), np.max(uniqueaway['lat']))
+lonrange = (np.min(uniqueaway['lon']), np.max(uniqueaway['lon']))
 """
-1. Work out the lat/lon extent of the visited locations.
 2. Do a gaussian smoothing of all the positions.
     - use the positional accuracy as the sigma for the gaussian ofg
       each point.
@@ -200,25 +200,10 @@ Eventually enable some fine-grained control by the user of what should be
 shown on the maps.
 """
 
-naway = 1
-    for loc in uniqueaway:
-        mapurl = mapurl + "&markers=color:red|label:%i|%f,%f" % \
-                          (naway, loc[0], loc[1])
-        naway += 1
-    if len(uniqueaway) == 2:
-        mapurl = mapurl+'&zoom=10'
-
 if len(uniqueaway) != 0:
-    sys.stdout.write("Requesting map of %i unique locations..." % (len(uniqueaway)))
-    if (args.service == 'google' and len(mapurl) < 2000) or \
-       args.service == 'osm':
-        if args.plotfile is None:
-            fname = '/srv/http/local/location/{0:04d}-{1:02d}.png'.format(year, week)
-        else:
-            fname = args.plotfile
-        fp = open(fname, "wb")
-
-        sys.stdout.write("Map saved to " + fname + "\n")
+    sys.stdout.write("Generating map of %i unique locations..." % (len(uniqueaway)))
+    plot_map(uniqueaway, args.plotfile)
+    sys.stdout.write("Map saved to " + args.plotfile + "\n")
 else:
     sys.stdout.write("No away locations found. Exiting.")
 
