@@ -30,4 +30,4 @@ Possible outputs include histograms of time spent each week/month in the above s
 ## Other
 
 * `magellan.cfg.example` Example configuration file. Rename to ```magellan.cfg``` after entering your particular values.
-* `magellan/` magellan python library
+* `magellan.py` magellan python library
