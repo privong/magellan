@@ -18,7 +18,7 @@
 import math as _math
 try:
     import _configparser
-except ModuleNotFoundError:
+except ImportError:
     import ConfigParser as _configparser
 import MySQLdb as _MySQLdb
 import sys as _sys
@@ -61,7 +61,7 @@ class magellan:
                                          db=Mdb)
             scur = self.scon.cursor()
             return scur
-        except _MySQLdb.OperationalError as e:
+        except _MySQLdb.OperationalError, e:
             _sys.stderr.write(e.args[1]+'\n')
             _sys.exit(1)
 
