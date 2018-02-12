@@ -54,8 +54,8 @@ def plot_map(positions, plotfile):
                                                     scale='50m',
                                                     facecolor='none')
 
-    SOURCE = 'Natural Earth'
-    LICENSE = 'public domain'
+    MAP_SOURCE = 'Natural Earth'
+    MAP_LICENSE = 'public domain'
 
     ax.add_feature(cfeature.LAND)
     ax.add_feature(cfeature.OCEAN)
