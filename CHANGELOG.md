@@ -2,6 +2,12 @@
 
 ## 0.4.x Series
 
+### 0.4.1 (in progress)
+
+#### Bug Fixes
+
+* Fix missing precision spec in map filename generation
+
 ### 0.4.0 (2018 February 11)
 
 #### Enhancements
