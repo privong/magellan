@@ -135,21 +135,21 @@ if week < 1 and mode == 'week':
 if mode == 'week':
     if args.plotfile is None:
         args.plotfile = "{0:1.0f}-{1:02.0f}.png".format(year, week)
-    sys.stdout.write("Loading home location for week %i of %i...\n" % (week, year))
+    sys.stdout.write("Loading away locations for week %i of %i...\n" % (week, year))
     command = 'SELECT * FROM locations_spec WHERE WEEK(UTC,1)=%i AND \
                YEAR(UTC)=%i AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
               (week, year)
 elif mode == 'month':
     if args.plotfile is None:
         args.plotfile = "{0:1.0f}-M_{1:02.0f}.png".format(year, month)
-    sys.stdout.write("Loading home location for month %i of %i...\n" % (month, year))
+    sys.stdout.write("Loading away locations for month %i of %i...\n" % (month, year))
     command = 'SELECT * FROM locations_spec WHERE MONTH(UTC)=%i AND \
                YEAR(UTC)=%i AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
               (month, year)
 elif mode == 'year':
     if args.plotfile is None:
         args.plotfile = "{0:1.0f}.png".format(year)
-    sys.stdout.write("Loading home location for %i...\n" % (year))
+    sys.stdout.write("Loading away locations for %i...\n" % (year))
     command = 'SELECT * FROM locations_spec WHERE YEAR(UTC)=%i \
                AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
               (year)

@@ -7,6 +7,7 @@
 #### Bug Fixes
 
 * Fix missing precision spec in map filename generation
+* Correct informational output in map script
 
 ### 0.4.0 (2018 February 11)
 
