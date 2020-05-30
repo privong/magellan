@@ -45,7 +45,7 @@ logger.')
     return parser.parse_args()
 
 
-def find_dup(scur, time, table):
+def find_dupe(scur, table, time):
     """
     Check if a duplicate entry exists. Return True if it does exist.
 
@@ -102,7 +102,7 @@ def main():
                         if loc.has_elevation():
                             elev = loc.elevation
                         # check for existing entry in the table
-                        if find_dup(scur, loc.time, TABLENAME):
+                        if find_dupe(scur, TABLENAME, loc.time):
                             # default to automatically replacing. this should
                             # be given as a user switch, when everything is
                             # integrated into magellan.py
@@ -134,7 +134,7 @@ def main():
 >>>>>>> 6d11571... put code into functions for future modularization
                     batt = -1
                     vacc = -1
-                    if find_dup(scur, loc.time, TABLENAME):
+                    if find_dupe(scur, TABLENAME, loc.time):
                         # default to automatically replacing. this should be
                         # given as a user switch, when everything is integrated
                         # into magellan.py
