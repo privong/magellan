@@ -8,6 +8,7 @@
 
 * Fix missing precision spec in map filename generation
 * Correct informational output in map script
+* Alert user if a file for import is not found and is thus skipped
 
 ### 0.4.0 (2018 February 11)
 

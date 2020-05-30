@@ -6,7 +6,7 @@ Load a textfile (CSV) of GPS data and store it into a SQL database.
 The log file should have the following format:
 UTC time,lat,long,horiz accuracy,alt,vert accuracy,speed,heading,battery
 
-Copyright (C) 2014-2018 George C. Privon
+Copyright (C) 2014-2018, 2020 George C. Privon
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -49,6 +49,7 @@ for filename in args.files:
     i = 0
     d = 0
     if not(os.path.isfile(filename)):
+        sys.stderr.write(filename + " not found. Skipping.\n")
         continue
     infile = open(filename, "r")
     if re.search('gpx', filename):
