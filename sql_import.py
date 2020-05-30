@@ -45,6 +45,23 @@ logger.')
     return parser.parse_args()
 
 
+def find_dup(scur, time, table):
+    """
+    Check if a duplicate entry exists. Return True if it does exist.
+
+    Parameters:
+        - time: datetime object
+        - table: SQL table name
+    """
+
+    command = 'SELECT * FROM %s WHERE UTC = \'%s\'' % \
+              (table,
+               time.strftime("%Y-%m-%d %H:%M:%S"))
+    scur.execute(command)
+    recs = scur.fetchall()
+
+    return bool(len(recs))
+
 
 def main():
     """
@@ -84,13 +101,8 @@ def main():
                         # do we have elevation?
                         if loc.has_elevation():
                             elev = loc.elevation
-                        # make sure we don't already have an entry for this time
-                        command = 'SELECT * FROM %s WHERE UTC = \'%s\'' % \
-                                  (TABLENAME,
-                                   loc.time.strftime("%Y-%m-%d %H:%M:%S"))
-                        scur.execute(command)
-                        recs = scur.fetchall()
-                        if len(recs) > 0:
+                        # check for existing entry in the table
+                        if find_dup(scur, loc.time, TABLENAME):
                             # default to automatically replacing. this should
                             # be given as a user switch, when everything is
                             # integrated into magellan.py
@@ -122,12 +134,7 @@ def main():
 >>>>>>> 6d11571... put code into functions for future modularization
                     batt = -1
                     vacc = -1
-                    # make sure we don't already have an entry for this time
-                    command = 'SELECT * FROM %s WHERE UTC = \'%s\'' % \
-                              (TABLENAME, re.sub('T', ' ', s[0].split('Z')[0]))
-                    scur.execute(command)
-                    recs = scur.fetchall()
-                    if len(recs) > 0:
+                    if find_dup(scur, loc.time, TABLENAME):
                         # default to automatically replacing. this should be
                         # given as a user switch, when everything is integrated
                         # into magellan.py
