@@ -28,7 +28,9 @@ import sys
 import os
 import re
 import argparse
+from datetime import datetime
 import magellan
+import v990_tools
 
 
 def getargs():
@@ -63,6 +65,50 @@ def find_dupe(scur, table, time):
     return bool(len(recs))
 
 
+def delete_record(scur, table, time):
+    """
+    Delete a single record, referenced by `time`
+    """
+    command = 'DELETE FROM %s WHERE UTC = \'%s\'' % \
+              (table,
+               time.strftime("%Y-%m-%d %H:%M:%S"))
+    scur.execute(command)
+
+
+def insert_record(scur, table, entry):
+    """
+    Add a record to the database
+    """
+
+    # INSERT INTO locations VALUES
+    # (datetime,lat,long,horizacc,alt,vertacc,speed,
+    # heading,battery)
+    # NOTE: currently sets vertical accuracy and battery to -1.
+    command = 'INSERT INTO %s VALUES \
+              (\'%s\',%f,%f,%f,%f,%f,%f,%f,%i)' % \
+              (table, entry[0].split('Z')[0], float(entry[1]),
+               float(entry[2]), float(entry[4]), float(entry[3]), -1,
+               float(entry[6]), float(entry[5].rstrip('%\n')), -1)
+    scur.execute(command)
+
+
+def import_records(scur, table, records):
+    """
+    Take a numpy array of records and load it into the database, checking for
+    duplicates.
+    """
+
+    ndel = 0
+    ninp = len(records)
+    for entry in records:
+        if find_dupe(scur, table, entry['time']):
+            delete_record(scur, table, entry['time'])
+            ndel += 1
+        insert_record(scur, table, entry)
+
+    return ninp, ndel
+
+
 def main():
     """
     Do the main things
@@ -84,6 +130,19 @@ def main():
         d = 0
         if not os.path.isfile(filename):
             continue
+
+        if args.v990:
+            # load and import CSV files from a Columbus V990 logger
+            recs = v990_tools.load_track(infile, average=True)
+            i, d = import_records(scur, TABLENAME, recs)
+            sys.stdout.write("%i unique records imported from %s. " %
+                             (i-d, filename))
+            sys.stdout.write("%i duplicate records replaced.\n" % (d))
+            e += i
+            f += d
+            continue
+
+        # Effectively, if not a V990 file, do the usual thing
         infile = open(filename, "r")
         if re.search('gpx', filename):
             import gpxpy
@@ -94,23 +153,12 @@ def main():
                         # set some default values we don't expect to get :(
                         elev = -1
                         hacc = 2000     # default/conservative value
-                        vacc = -1
                         speed = 0
                         heading = -1
-                        batt = -1
                         # do we have elevation?
                         if loc.has_elevation():
                             elev = loc.elevation
                         # check for existing entry in the table
-                        if find_dupe(scur, TABLENAME, loc.time):
-                            # default to automatically replacing. this should
-                            # be given as a user switch, when everything is
-                            # integrated into magellan.py
-                            command = 'DELETE FROM %s WHERE UTC = \'%s\'' % \
-                                      (TABLENAME,
-                                       loc.time.strftime("%Y-%m-%d %H:%M:%S"))
-                            scur.execute(command)
-                            d += 1
                         # INSERT INTO locations VALUES
                         # (datetime,lat,long,horizacc,alt,vertacc,speed,
                         # heading,battery)
@@ -119,8 +167,8 @@ def main():
                                   (TABLENAME,
                                    loc.time.strftime("%Y-%m-%d %H:%M:%S"),
                                    loc.latitude, loc.longitude, hacc,
-                                   elev, vacc,
-                                   speed, heading, batt)
+                                   elev, -1,
+                                   speed, heading, -1)
                         scur.execute(command)
                         i += 1
         else:
@@ -131,9 +179,7 @@ def main():
                     break
                 if i > 0:
                     s = line.split(',')
->>>>>>> 6d11571... put code into functions for future modularization
-                    batt = -1
-                    vacc = -1
+                    import_records(scur, TABLENAME, s)
                     if find_dupe(scur, TABLENAME, loc.time):
                         # default to automatically replacing. this should be
                         # given as a user switch, when everything is integrated
@@ -142,15 +188,6 @@ def main():
                                   (TABLENAME, re.sub('T', ' ', s[0].split('Z')[0]))
                         scur.execute(command)
                         d += 1
-                    # INSERT INTO locations VALUES
-                    # (datetime,lat,long,horizacc,alt,vertacc,speed,
-                    # heading,battery)
-                    command = 'INSERT INTO %s VALUES \
-                              (\'%s\',%f,%f,%f,%f,%f,%f,%f,%i)' % \
-                              (TABLENAME, s[0].split('Z')[0], float(s[1]),
-                               float(s[2]), float(s[4]), float(s[3]), vacc,
-                               float(s[6]), float(s[5].rstrip('%\n')), batt)
-                    scur.execute(command)
                     i += 1
                 else:
                     i = 1
