@@ -94,9 +94,9 @@ if args.period == 'week':
                      (week, year))
     command = 'SELECT startdate,enddate,lat,lon,homeradiu FROM homeloc WHERE \
               (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) > %i) OR \
-              (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) = %i AND WEEK(ENDDATE,1) >= %i) OR \
-              (YEAR(STARTDATE) = %i AND WEEK(STARTDATE,1) <= %i AND YEAR(ENDDATE) > %i) OR \
-              (YEAR(STARTDATE) = %i AND WEEK(STARTDATE,1) <= %i AND YEAR(ENDDATE) = %i AND WEEK(ENDDATE,1) >= %i)' \
+              (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) = %i AND WEEK(ENDDATE,3) >= %i) OR \
+              (YEAR(STARTDATE) = %i AND WEEK(STARTDATE,3) <= %i AND YEAR(ENDDATE) > %i) OR \
+              (YEAR(STARTDATE) = %i AND WEEK(STARTDATE,3) <= %i AND YEAR(ENDDATE) = %i AND WEEK(ENDDATE,3) >= %i)' \
               % (year, year,
                  year, year, week,
                  year, week, year,
@@ -152,12 +152,12 @@ else:
 # 'command2' selects the final record from the previous period, so we can
 #   correctly tag the first point of the current period
 if args.period == 'week':
-    command = 'SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i \
+    command = 'SELECT * FROM locations WHERE WEEK(UTC,3)=%i AND YEAR(UTC)=%i \
               ORDER by locations.UTC' % (week, year)
-    command2 = 'SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i \
+    command2 = 'SELECT * FROM locations WHERE WEEK(UTC,3)=%i AND YEAR(UTC)=%i \
                ORDER by locations.UTC DESC LIMIT 1' % \
                ((52, year-1), (week-1, year))[week > 1]
-    # command3='SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i \
+    # command3='SELECT * FROM locations WHERE WEEK(UTC,3)=%i AND YEAR(UTC)=%i \
     #          ORDER by locations.UTC' % ((0,year+1),(week+1,year))[week < 53]
 elif args.period == 'month':
     command = 'SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i \

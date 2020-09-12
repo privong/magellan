@@ -2,6 +2,12 @@
 
 ## 0.4.x Series
 
+### 0.4.2 (2020 September 12)
+
+### Bug Fixes
+
+* Fix inconsistent week definitions in SQL versus python date calculations. In some cases this could lead to an off-by-one error in calculations involving the week number.
+
 ### 0.4.1 (2020 September 12)
 
 #### Bug Fixes
