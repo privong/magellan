@@ -119,7 +119,7 @@ elif args.period == 'year':
     command = 'SELECT startdate,enddate,lat,lon,homeradius, \
 CAST(strftime("%Y", startdate) AS INTEGER) as year_s, \
 CAST(strftime("%Y", enddate) AS INTEGER) as year_e \
-FROM homeloc WHERE (year_s <= {0:d} AND year_e >= {1:d})'.format(year, year)
+FROM homeloc WHERE (year_s <= {0:d} AND year_e >= {0:d})'.format(year)
 elif args.period == 'all':
     sys.stdout.write("Loading all home locations...\n")
     command = 'SELECT startdate,enddate,lat,lon,homeradius FROM homeloc ORDER BY STARTDATE'
@@ -221,7 +221,7 @@ for rec1 in recs:
         hradius = -1    # treat everything as 'away' if there's no homeloc
         i = 0
         for hopt in hlocs:
-            if hopt[0] <= rec1[0].date() and hopt[1] >= rec1[0].date():
+            if datetime.strptime(hopt[0], "%Y-%m-%d") <= datetime.strptime(rec1[0], "%Y-%m-%d %H:%M:%S") and datetime.strptime(hopt[1], "%Y-%m-%d") >= datetime.strptime(rec1[0], "%Y-%m-%d %H:%M:%S"):
                 # have our home location
                 hlat = hopt[2]
                 hlon = hopt[3]
