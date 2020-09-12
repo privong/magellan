@@ -186,7 +186,7 @@ elif args.period == 'year':
 CAST(strftime("%Y", UTC) AS INTEGER) as year \
 FROM locations WHERE year={0:d} ORDER by locations.UTC'.format(year)
     command2 = 'SELECT *, \
-CAST(strftime("%Y", UTC) AS INTEGER) as year \
+CAST(strftime("%Y", UTC) AS INTEGER) as year, \
 CAST(strftime("%m", UTC) AS INTEGER) as month \
 FROM locations WHERE month=12 AND year={0:d} \
 ORDER by locations.UTC DESC LIMIT 1'.format(year - 1)
