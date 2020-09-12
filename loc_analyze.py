@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import sys
-import time
+from datetime import datetime
 import math
 import magellan
 from datetime import date
@@ -245,11 +245,12 @@ for rec1 in recs:
                 # htime+=dechrs*60.
                 loctype = 'home'
     else:
+        tdiff = datetime.strptime(rec1[0], "%Y-%m-%d %H:%M:%S") - \
+                datetime.strptime(rec0[0], "%Y-%m-%d %H:%M:%S")
+        dechrs = tdiff.days*24+tdiff.seconds/3600.
         if hradius != -1:
             # first check if the rec is within the home distance
             dist = magellan.GreatCircDist([hlat, hlon], rec1[1:])
-            tdiff = rec1[0]-rec0[0]
-            dechrs = tdiff.days*24+tdiff.seconds/3600.
             if dist > hradius:
                 # we're outside the home radius. see if we're traveling or not
                 travdist = magellan.GreatCircDist(rec1[1:], rec0[1:])
@@ -266,7 +267,6 @@ for rec1 in recs:
                         atime += dechrs*60.
                     loctype = 'away'
             else:
-                tdiff = rec1[0]-rec0[0]
                 # inside the home radius. we're in town
                 htime += dechrs*60.
                 loctype = 'home'
@@ -289,13 +289,13 @@ for rec1 in recs:
     rec0 = rec1
     # check for existing record
     cursor.execute('SELECT * FROM %s WHERE UTC = \'%s\'' %
-                   (TABLENAME, rec0[0].strftime("%Y-%m-%d %H:%M:%S")))
+                   (TABLENAME, rec0[0]))
     recs = cursor.fetchall()
     if len(recs) > 0:
         # default to automatically replacing. this should be given as a user
         # switch, when everything is integrated into magellan.py
         command = 'DELETE FROM %s WHERE UTC = \'%s\'' % \
-                  (TABLENAME, rec0[0].strftime("%Y-%m-%d %H:%M:%S"))
+                  (TABLENAME, rec0[0])
         cursor.execute(command)
         d = d+1
     # now insert the record (this currently works for all records)
@@ -321,14 +321,14 @@ sys.stdout.write("Travel:\t{0:1.0f}\t{1:0.2f}\n".format(ttime/60., ttime/totalti
 
 # submit to the database
 if args.period == 'week':
-    command = 'REPLACE INTO magellan.analysis_weekly \
+    command = 'REPLACE INTO analysis_weekly \
               (timeID,year,week,home,homefrac,away,awayfrac,travel, \
               travelfrac) \
               values (%i,%i,%i,%f,%f,%f,%f,%f,%f)' % \
               (magellan.yearid(year, week), year, week, htime,
                htime/totaltime, atime, atime/totaltime, ttime, ttime/totaltime)
 elif args.period == 'month':
-    command = 'REPLACE INTO magellan.analysis_monthly \
+    command = 'REPLACE INTO analysis_monthly \
               (timeID,year,month,home,homefrac,away,awayfrac,travel, \
               travelfrac) \
               values (%i,%i,%i,%f,%f,%f,%f,%f,%f)' % \
