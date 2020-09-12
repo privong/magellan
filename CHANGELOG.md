@@ -7,6 +7,7 @@
 #### Deprecations
 
 * tipboard functionality has been removed
+* python2 is no longer supported
 
 ## 0.4.x Series
 

@@ -8,8 +8,9 @@ Possible outputs include histograms of time spent each week/month in the above s
 
 ## Requirements
 
-* matplotlib (for histogram plotting)
+* python3
 * numpy
+* matplotlib (for histogram plotting)
 * cartopy (for map generation)
 
 ## Documentation

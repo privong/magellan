@@ -20,10 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import sys as _sys
 import os as _os
 import math as _math
-try:
-    import configparser as _configparser
-except ImportError:
-    import ConfigParser as _configparser
+import configparser as _configparser
 import sqlite3 as _sqlite3
 
 
