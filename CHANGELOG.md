@@ -2,7 +2,11 @@
 
 ## 0.5.x Series
 
-### 0.5.0 (in preparation)
+### 0.5.0 (2020 September 12)
+
+### Enhancements
+
+* Location and analyzed data are now store in a sqlite3 database. This requires significantly less overhead for the user. If you have previously been using magellan, you will need to update your configuration file _and_ move your data into a sqlite database. The [mysql2sqlite](https://github.com/dumblob/mysql2sqlite) script may be useful in achieving the latter step.
 
 #### Deprecations
 
