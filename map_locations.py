@@ -135,23 +135,29 @@ if mode == 'week':
     if args.plotfile is None:
         args.plotfile = "{0:1.0f}-{1:02.0f}.png".format(year, week)
     sys.stdout.write("Loading away locations for week %i of %i...\n" % (week, year))
-    command = 'SELECT * FROM locations_spec WHERE WEEK(UTC,1)=%i AND \
-               YEAR(UTC)=%i AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
-              (week, year)
+    command = 'SELECT *, \
+(strftime("%j", date(UTC, "-3 days", "weekday 4")) - 1) / 7  \
+as isoweek, \
+strftime("%Y", UTC) as year \
+FROM locations_spec WHERE isoweek={0:d} AND \
+year="{1:d}" AND TYPE=\'away\' ORDER by locations_spec.UTC'.format(week, year)
 elif mode == 'month':
     if args.plotfile is None:
         args.plotfile = "{0:1.0f}-M_{1:02.0f}.png".format(year, month)
     sys.stdout.write("Loading away locations for month %i of %i...\n" % (month, year))
-    command = 'SELECT * FROM locations_spec WHERE MONTH(UTC)=%i AND \
-               YEAR(UTC)=%i AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
-              (month, year)
+    command = 'SELECT *, \
+strftime("%Y", UTC) as year, \
+strftime("%m", UTC) as month \
+FROM locations_spec WHERE month="{0:d}" AND \
+year="{1:d}" AND TYPE=\'away\' ORDER by locations_spec.UTC'.format(month, year)
 elif mode == 'year':
     if args.plotfile is None:
         args.plotfile = "{0:1.0f}.png".format(year)
     sys.stdout.write("Loading away locations for %i...\n" % (year))
-    command = 'SELECT * FROM locations_spec WHERE YEAR(UTC)=%i \
-               AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
-              (year)
+    command = 'SELECT *, \
+strftime("%Y", UTC) as year \
+FROM locations_spec WHERE year="{0:d}" \
+AND TYPE=\'away\' ORDER by locations_spec.UTC'.format(year)
 cursor.execute(command)
 
 # retrieve rows from the database within that timerange.
