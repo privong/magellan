@@ -5,7 +5,7 @@ loc_analyze.py
 Provide a (weekly/monthly) analysis of GPS log information.
 The information will be retreived from an SQL database
 
-Copyright (C) 2014-2018 George C. Privon
+Copyright (C) 2014-2018, 2020 George C. Privon
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,13 +21,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import MySQLdb
 import sys
-import time
-import math
-import magellan
+from datetime import datetime
 from datetime import date
 import argparse
+import magellan
 
 
 parser = argparse.ArgumentParser(description='Analyze stored location \
@@ -92,41 +90,38 @@ if args.period == 'week' and week < 0:
 if args.period == 'week':
     sys.stdout.write("Loading home location for week %i of %i...\n" %
                      (week, year))
-    command = 'SELECT startdate,enddate,lat,lon,homeradiu FROM homeloc WHERE \
-              (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) > %i) OR \
-              (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) = %i AND WEEK(ENDDATE,3) >= %i) OR \
-              (YEAR(STARTDATE) = %i AND WEEK(STARTDATE,3) <= %i AND YEAR(ENDDATE) > %i) OR \
-              (YEAR(STARTDATE) = %i AND WEEK(STARTDATE,3) <= %i AND YEAR(ENDDATE) = %i AND WEEK(ENDDATE,3) >= %i)' \
-              % (year, year,
-                 year, year, week,
-                 year, week, year,
-                 year, week, year, week)
+    command = 'SELECT startdate,enddate,lat,lon,homeradius, \
+(strftime("%j", date(startdate, "-3 days", "weekday 4")) - 1) / 7 as isoweek_s, \
+(strftime("%j", date(enddate, "-3 days", "weekday 4")) - 1) / 7 as isoweek_e, \
+CAST(strftime("%Y", startdate) as INTEGER) as year_s, \
+CAST(strftime("%Y", enddate) as INTEGER) as year_e \
+FROM homeloc WHERE \
+(year_s < {0:d} AND year_e = {0:d} AND isoweek_e >= {1:d}) OR \
+(year_s = {0:d} AND isoweek_s <= {1:d} AND year_e > {0:d}) OR \
+(year_s = {0:d} AND isoweek_s <= {1:d} AND year_e = {0:d} AND isoweek_e >= {1:d})'.format(year, week)
 elif args.period == 'month':
     sys.stdout.write("Loading home location for month %i of %i...\n" %
                      (month, year))
-    command = 'SELECT startdate,enddate,lat,lon,homeradiu FROM homeloc WHERE \
-             (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE) <= %i AND \
-              YEAR(ENDDATE) > %i) OR \
-             (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE) <= %i AND \
-              YEAR(ENDDATE) = %i AND MONTH(ENDDATE) >= %i) OR \
-             (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) > %i) OR \
-             (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) >= %i AND \
-              MONTH(ENDDATE) >= %i) OR \
-             (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE) <= %i AND\
-              YEAR(ENDDATE) > %i)' \
-             % (year, month, year,
-                year, month, year, month,
-                year, year,
-                year, year, month,
-                year, month, year)
+    command = 'SELECT startdate,enddate,lat,lon,homeradius, \
+CAST(strftime("%Y", startdate) as INTEGER) as year_s, \
+CAST(strftime("%Y", enddate) as INTEGER) as year_e, \
+CAST(strftime("%m", startdate) as INTEGER) as month_s, \
+CAST(strftime("%m", enddate) as INTEGER) as month_e \
+FROM homeloc WHERE \
+(year_s <= {0:d} AND month_s <= {1:d} AND year_e > {0:d}) OR \
+(year_s <= {0:d} AND month_s <= {1:d} AND year_e = {0:d} AND month_e >= {1:d}) OR \
+(year_s < {0:d} AND year_e > {0:d}) OR \
+(year_s < {0:d} AND year_e >= {0:d} AND month_e >= {1:d}) OR \
+(year_s <= {0:d} AND month_s <= {1:d} AND year_e > {0:d})'.format(year, month)
 elif args.period == 'year':
     sys.stdout.write("Loading home location for %i...\n" % (year))
-    command = 'SELECT startdate,enddate,lat,lon,homeradiu FROM homeloc WHERE \
-               (YEAR(STARTDATE) <= %i AND YEAR(ENDDATE) >= %i)' \
-               % (year, year)
+    command = 'SELECT startdate,enddate,lat,lon,homeradius, \
+CAST(strftime("%Y", startdate) AS INTEGER) as year_s, \
+CAST(strftime("%Y", enddate) AS INTEGER) as year_e \
+FROM homeloc WHERE (year_s <= {0:d} AND year_e >= {0:d})'.format(year)
 elif args.period == 'all':
     sys.stdout.write("Loading all home locations...\n")
-    command = 'SELECT startdate,enddate,lat,lon,homeradiu FROM homeloc ORDER BY STARTDATE'
+    command = 'SELECT startdate,enddate,lat,lon,homeradius FROM homeloc ORDER BY STARTDATE'
 cursor.execute(command)
 recs = cursor.fetchall()
 
@@ -152,27 +147,48 @@ else:
 # 'command2' selects the final record from the previous period, so we can
 #   correctly tag the first point of the current period
 if args.period == 'week':
-    command = 'SELECT * FROM locations WHERE WEEK(UTC,3)=%i AND YEAR(UTC)=%i \
-              ORDER by locations.UTC' % (week, year)
-    command2 = 'SELECT * FROM locations WHERE WEEK(UTC,3)=%i AND YEAR(UTC)=%i \
-               ORDER by locations.UTC DESC LIMIT 1' % \
-               ((52, year-1), (week-1, year))[week > 1]
-    # command3='SELECT * FROM locations WHERE WEEK(UTC,3)=%i AND YEAR(UTC)=%i \
-    #          ORDER by locations.UTC' % ((0,year+1),(week+1,year))[week < 53]
+    command = 'SELECT *, \
+(strftime("%j", date(UTC, "-3 days", "weekday 4")) - 1) / 7  as isoweek, \
+CAST(strftime("%Y", UTC) AS INTEGER) as year \
+FROM locations WHERE isoweek={0:d} AND year={1:d} \
+ORDER by locations.UTC'.format(week, year)
+    if week > 1:
+        wsel = week - 1
+        ysel = year
+    else:
+        wsel = 52
+        ysel = year - 1
+    command2 = 'SELECT *, \
+(strftime("%j", date(UTC, "-3 days", "weekday 4")) - 1) / 7 as isoweek, \
+CAST(strftime("%Y", UTC) AS INTEGER) as year \
+FROM locations WHERE isoweek={0:d} AND year={1:d} \
+ORDER by locations.UTC DESC LIMIT 1'.format(wsel, ysel)
 elif args.period == 'month':
-    command = 'SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i \
-              ORDER by locations.UTC' % (month, year)
-    command2 = 'SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i \
-               ORDER by locations.UTC DESC LIMIT 1' % \
-               ((12, year-1), (month-1, year))[month > 1]
-    # command3='SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i \
-    #          ORDER by locations.UTC' % \
-    #          ((1,year+1),(month+1,year))[month < 12]
+    command = 'SELECT *, \
+CAST(strftime("%Y", UTC) AS INTEGER) as year, \
+CAST(strftime("%m", UTC) AS INTEGER) as month \
+FROM locations WHERE month={0:d} AND year={1:d} \
+ORDER by locations.UTC'.format(month, year)
+    if month > 1:
+        msel = month - 1
+        ysel = year
+    else:
+        msel = 12
+        ysel = year - 1
+    command2 = 'SELECT *, \
+CAST(strftime("%Y", UTC) AS INTEGER) as year, \
+CAST(strftime("%m", UTC) AS INTEGER) as month \
+FROM locations WHERE month={0:d} AND year={1:d} \
+ORDER by locations.UTC DESC LIMIT 1'.format(msel, ysel)
 elif args.period == 'year':
-    command = 'SELECT * FROM locations WHERE YEAR(UTC)=%i \
-              ORDER by locations.UTC' % (year)
-    command2 = 'SELECT * FROM locations WHERE MONTH(UTC)=12 AND YEAR(UTC)=%i \
-               ORDER by locations.UTC DESC LIMIT 1' % (year - 1)
+    command = 'SELECT *, \
+CAST(strftime("%Y", UTC) AS INTEGER) as year \
+FROM locations WHERE year={0:d} ORDER by locations.UTC'.format(year)
+    command2 = 'SELECT *, \
+CAST(strftime("%Y", UTC) AS INTEGER) as year, \
+CAST(strftime("%m", UTC) AS INTEGER) as month \
+FROM locations WHERE month=12 AND year={0:d} \
+ORDER by locations.UTC DESC LIMIT 1'.format(year - 1)
 elif args.period == 'all':
     command = 'SELECT * FROM locations ORDER by locations.UTC'
 cursor.execute(command)
@@ -204,7 +220,7 @@ for rec1 in recs:
         hradius = -1    # treat everything as 'away' if there's no homeloc
         i = 0
         for hopt in hlocs:
-            if hopt[0] <= rec1[0].date() and hopt[1] >= rec1[0].date():
+            if datetime.strptime(hopt[0], "%Y-%m-%d") <= datetime.strptime(rec1[0], "%Y-%m-%d %H:%M:%S") and datetime.strptime(hopt[1], "%Y-%m-%d") >= datetime.strptime(rec1[0], "%Y-%m-%d %H:%M:%S"):
                 # have our home location
                 hlat = hopt[2]
                 hlon = hopt[3]
@@ -228,11 +244,12 @@ for rec1 in recs:
                 # htime+=dechrs*60.
                 loctype = 'home'
     else:
+        tdiff = datetime.strptime(rec1[0], "%Y-%m-%d %H:%M:%S") - \
+                datetime.strptime(rec0[0], "%Y-%m-%d %H:%M:%S")
+        dechrs = tdiff.days*24+tdiff.seconds/3600.
         if hradius != -1:
             # first check if the rec is within the home distance
             dist = magellan.GreatCircDist([hlat, hlon], rec1[1:])
-            tdiff = rec1[0]-rec0[0]
-            dechrs = tdiff.days*24+tdiff.seconds/3600.
             if dist > hradius:
                 # we're outside the home radius. see if we're traveling or not
                 travdist = magellan.GreatCircDist(rec1[1:], rec0[1:])
@@ -249,7 +266,6 @@ for rec1 in recs:
                         atime += dechrs*60.
                     loctype = 'away'
             else:
-                tdiff = rec1[0]-rec0[0]
                 # inside the home radius. we're in town
                 htime += dechrs*60.
                 loctype = 'home'
@@ -272,13 +288,13 @@ for rec1 in recs:
     rec0 = rec1
     # check for existing record
     cursor.execute('SELECT * FROM %s WHERE UTC = \'%s\'' %
-                   (TABLENAME, rec0[0].strftime("%Y-%m-%d %H:%M:%S")))
+                   (TABLENAME, rec0[0]))
     recs = cursor.fetchall()
     if len(recs) > 0:
         # default to automatically replacing. this should be given as a user
         # switch, when everything is integrated into magellan.py
         command = 'DELETE FROM %s WHERE UTC = \'%s\'' % \
-                  (TABLENAME, rec0[0].strftime("%Y-%m-%d %H:%M:%S"))
+                  (TABLENAME, rec0[0])
         cursor.execute(command)
         d = d+1
     # now insert the record (this currently works for all records)
@@ -304,14 +320,14 @@ sys.stdout.write("Travel:\t{0:1.0f}\t{1:0.2f}\n".format(ttime/60., ttime/totalti
 
 # submit to the database
 if args.period == 'week':
-    command = 'REPLACE INTO magellan.analysis_weekly \
+    command = 'REPLACE INTO analysis_weekly \
               (timeID,year,week,home,homefrac,away,awayfrac,travel, \
               travelfrac) \
               values (%i,%i,%i,%f,%f,%f,%f,%f,%f)' % \
               (magellan.yearid(year, week), year, week, htime,
                htime/totaltime, atime, atime/totaltime, ttime, ttime/totaltime)
 elif args.period == 'month':
-    command = 'REPLACE INTO magellan.analysis_monthly \
+    command = 'REPLACE INTO analysis_monthly \
               (timeID,year,month,home,homefrac,away,awayfrac,travel, \
               travelfrac) \
               values (%i,%i,%i,%f,%f,%f,%f,%f,%f)' % \

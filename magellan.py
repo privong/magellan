@@ -1,7 +1,7 @@
 """
 magellan library
 
-Copyright (C) 2014-2018 George C. Privon
+Copyright (C) 2014-2018, 2020 George C. Privon
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,14 +17,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import math as _math
-try:
-    import configparser as _configparser
-except ImportError:
-    import ConfigParser as _configparser
-import MySQLdb as _MySQLdb
 import sys as _sys
 import os as _os
+import math as _math
+import configparser as _configparser
+import sqlite3 as _sqlite3
 
 
 class magellan:
@@ -36,34 +33,35 @@ class magellan:
             _sys.stderr.write('Could not load configuration file.\n')
             _sys.exit(-1)
 
+        # sql db connection
+        self.scon = None
+        # analysis parameters
+        self.travelspeed = None
+        self.uniquedist = None
+
     # load configuration file and connect to the database
     def initdb(self):
         """
         initdb()
 
-        Connect to the MySQL server and return an interface to the server
+        Connect to the sqlite database and return an interface
         """
 
         # load information from the configuration file
-        if not(self.config.get('Server Config', 'server')) or \
-           not(self.config.get('Server Config', 'user')) or \
-           not(self.config.get('Server Config', 'password')) or \
-           not(self.config.get('Server Config', 'db')):
+        if not self.config.get('database', 'db_file'):
             _sys.stderr.write('Configuration file error. Please check the \
                                configuration file.\n')
             _sys.exit(-1)
         else:
-            Mserver = self.config.get('Server Config', 'server')
-            Muser = self.config.get('Server Config', 'user')
-            Mpw = self.config.get('Server Config', 'password')
-            Mdb = self.config.get('Server Config', 'db')
+            Mdb = self.config.get('database', 'db_file')
+            # make sure the file exists
+            assert _os.path.isfile(Mdb), "Database file does not exist."
         # create a catabase connection
         try:
-            self.scon = _MySQLdb.connect(host=Mserver, user=Muser, passwd=Mpw,
-                                         db=Mdb)
+            self.scon = _sqlite3.connect(Mdb)
             scur = self.scon.cursor()
             return scur
-        except _MySQLdb.OperationalError as e:
+        except _sqlite3.OperationalError as e:
             _sys.stderr.write(e.args[1]+'\n')
             _sys.exit(1)
 
@@ -76,7 +74,7 @@ class magellan:
         try:
             self.scon.close()
         except:
-            _sys.stderr.write('Error closing MySQL database connection.\n')
+            _sys.stderr.write('Error closing sqlite database.\n')
             _sys.exit(1)
 
     def loadanalysis(self):

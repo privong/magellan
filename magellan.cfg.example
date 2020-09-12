@@ -1,16 +1,9 @@
 # Please enter appropriate values and rename to 'magellan.cfg'
-[Server Config]
-server = ServerName
-user = UserName
-password = Password
-db = DatabaseName
+[database]
+db_file = /path/to/magellan.db
 
 [Analysis]
 # threshold for something to be considered "traveling", in m/s
 travelspeed = 13.5
 # distance away from a previous point for an away to be considered unique, in km
 uniquedist = 60.
-
-[Tipboard]
-baseurl = http://url.for.your.tipboard/api/v0.1/
-key = yourAPIKey

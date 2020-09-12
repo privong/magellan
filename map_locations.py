@@ -4,7 +4,7 @@ map_locations.py
 
 Generate and save a map of locations visited, based on GPS logs.
 
-Copyright (C) 2014-2018 George C. Privon
+Copyright (C) 2014-2018, 2020 George C. Privon
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,17 +21,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 
-import MySQLdb
 import sys
-import time
-import math
+import argparse
+from datetime import date
+import numpy as np
+import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-import numpy as np
 import magellan
-from datetime import date
-import argparse
-import matplotlib.pyplot as plt
 
 
 def plot_map(positions, plotfile):
@@ -136,23 +133,29 @@ if mode == 'week':
     if args.plotfile is None:
         args.plotfile = "{0:1.0f}-{1:02.0f}.png".format(year, week)
     sys.stdout.write("Loading away locations for week %i of %i...\n" % (week, year))
-    command = 'SELECT * FROM locations_spec WHERE WEEK(UTC,3)=%i AND \
-               YEAR(UTC)=%i AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
-              (week, year)
+    command = 'SELECT *, \
+(strftime("%j", date(UTC, "-3 days", "weekday 4")) - 1) / 7  \
+as isoweek, \
+strftime("%Y", UTC) as year \
+FROM locations_spec WHERE isoweek={0:d} AND \
+year="{1:d}" AND TYPE=\'away\' ORDER by locations_spec.UTC'.format(week, year)
 elif mode == 'month':
     if args.plotfile is None:
         args.plotfile = "{0:1.0f}-M_{1:02.0f}.png".format(year, month)
     sys.stdout.write("Loading away locations for month %i of %i...\n" % (month, year))
-    command = 'SELECT * FROM locations_spec WHERE MONTH(UTC)=%i AND \
-               YEAR(UTC)=%i AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
-              (month, year)
+    command = 'SELECT *, \
+strftime("%Y", UTC) as year, \
+strftime("%m", UTC) as month \
+FROM locations_spec WHERE month="{0:d}" AND \
+year="{1:d}" AND TYPE=\'away\' ORDER by locations_spec.UTC'.format(month, year)
 elif mode == 'year':
     if args.plotfile is None:
         args.plotfile = "{0:1.0f}.png".format(year)
     sys.stdout.write("Loading away locations for %i...\n" % (year))
-    command = 'SELECT * FROM locations_spec WHERE YEAR(UTC)=%i \
-               AND TYPE=\'away\' ORDER by locations_spec.UTC' % \
-              (year)
+    command = 'SELECT *, \
+strftime("%Y", UTC) as year \
+FROM locations_spec WHERE year="{0:d}" \
+AND TYPE=\'away\' ORDER by locations_spec.UTC'.format(year)
 cursor.execute(command)
 
 # retrieve rows from the database within that timerange.
@@ -183,7 +186,7 @@ for rec1 in recs[1:]:
             # within an existing unique location
             umatch = True
             awaylocs[i].append([thisloc[0][0], thisloc[0][1]])
-    if not(umatch):
+    if not umatch:
         # no match, add this location to the unique locations list
         awaylocs.append([[thisloc[0][0], thisloc[0][1]]])
 
