@@ -103,26 +103,23 @@ FROM homeloc WHERE \
 elif args.period == 'month':
     sys.stdout.write("Loading home location for month %i of %i...\n" %
                      (month, year))
-    command = 'SELECT startdate,enddate,lat,lon,homeradius FROM homeloc WHERE \
-             (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE) <= %i AND \
-              YEAR(ENDDATE) > %i) OR \
-             (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE) <= %i AND \
-              YEAR(ENDDATE) = %i AND MONTH(ENDDATE) >= %i) OR \
-             (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) > %i) OR \
-             (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) >= %i AND \
-              MONTH(ENDDATE) >= %i) OR \
-             (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE) <= %i AND\
-              YEAR(ENDDATE) > %i)' \
-             % (year, month, year,
-                year, month, year, month,
-                year, year,
-                year, year, month,
-                year, month, year)
+    command = 'SELECT startdate,enddate,lat,lon,homeradius, \
+CAST(strftime("%Y", startdate) as INTEGER) as year_s, \
+CAST(strftime("%Y", enddate) as INTEGER) as year_e, \
+CAST(strftime("%m", startdate) as INTEGER) as month_s, \
+CAST(strftime("%m", enddate) as INTEGER) as month_e \
+FROM homeloc WHERE \
+(year_s <= {0:d} AND month_s <= {1:d} AND year_e > {0:d}) OR \
+(year_s <= {0:d} AND month_s <= {1:d} AND year_e = {0:d} AND month_e >= {1:d}) OR \
+(year_s < {0:d} AND year_e > {0:d}) OR \
+(year_s < {0:d} AND year_e >= {0:d} AND month_e >= {1:d}) OR \
+(year_s <= {0:d} AND month_s <= {1:d} AND year_e > {0:d})'.format(year, month)
 elif args.period == 'year':
     sys.stdout.write("Loading home location for %i...\n" % (year))
-    command = 'SELECT startdate,enddate,lat,lon,homeradius FROM homeloc WHERE \
-               (YEAR(STARTDATE) <= %i AND YEAR(ENDDATE) >= %i)' \
-               % (year, year)
+    command = 'SELECT startdate,enddate,lat,lon,homeradius, \
+CAST(strftime("%Y", startdate) AS INTEGER) as year_s, \
+CAST(strftime("%Y", enddate) AS INTEGER) as year_e \
+FROM homeloc WHERE (year_s <= {0:d} AND year_e >= {1:d})'.format(year, year)
 elif args.period == 'all':
     sys.stdout.write("Loading all home locations...\n")
     command = 'SELECT startdate,enddate,lat,lon,homeradius FROM homeloc ORDER BY STARTDATE'
@@ -152,27 +149,47 @@ else:
 #   correctly tag the first point of the current period
 if args.period == 'week':
     command = 'SELECT *, \
-               (strftime("%j", date(UTC, "-3 days", "weekday 4")) - 1) / 7  \
-               as isoweek \
-               FROM locations WHERE isoweek=%i AND YEAR(UTC)=%i \
-              ORDER by locations.UTC' % (week, year)
+(strftime("%j", date(UTC, "-3 days", "weekday 4")) - 1) / 7  as isoweek, \
+CAST(strftime("%Y", UTC) AS INTEGER) as year \
+FROM locations WHERE isoweek={0:d} AND year={1:d} \
+ORDER by locations.UTC'.format(week, year)
+    if week > 1:
+        wsel = week - 1
+        ysel = year
+    else:
+        wsel = 52
+        ysel = year - 1
     command2 = 'SELECT *, \
-               (strftime("%j", date(UTC, "-3 days", "weekday 4")) - 1) / 7  \
-               as isoweek \
-               FROM locations WHERE isoweek)=%i AND YEAR(UTC)=%i \
-               ORDER by locations.UTC DESC LIMIT 1' % \
-               ((52, year-1), (week-1, year))[week > 1]
+(strftime("%j", date(UTC, "-3 days", "weekday 4")) - 1) / 7 as isoweek, \
+CAST(strftime("%Y", UTC) AS INTEGER) as year \
+FROM locations WHERE isoweek={0:d} AND year={1:d} \
+ORDER by locations.UTC DESC LIMIT 1'.format(wsel, ysel)
 elif args.period == 'month':
-    command = 'SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i \
-              ORDER by locations.UTC' % (month, year)
-    command2 = 'SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i \
-               ORDER by locations.UTC DESC LIMIT 1' % \
-               ((12, year-1), (month-1, year))[month > 1]
+    command = 'SELECT *, \
+CAST(strftime("%Y", UTC) AS INTEGER) as year, \
+CAST(strftime("%m", UTC) AS INTEGER) as month \
+FROM locations WHERE month={0:d} AND year={1:d} \
+ORDER by locations.UTC'.format(month, year)
+    if month > 1:
+        msel = month - 1
+        ysel = year
+    else:
+        msel = 12
+        ysel = year - 1
+    command2 = 'SELECT *, \
+CAST(strftime("%Y", UTC) AS INTEGER) as year, \
+CAST(strftime("%m", UTC) AS INTEGER) as month \
+FROM locations WHERE month={0:d} AND year={1:d} \
+ORDER by locations.UTC DESC LIMIT 1'.format(msel, ysel)
 elif args.period == 'year':
-    command = 'SELECT * FROM locations WHERE YEAR(UTC)=%i \
-              ORDER by locations.UTC' % (year)
-    command2 = 'SELECT * FROM locations WHERE MONTH(UTC)=12 AND YEAR(UTC)=%i \
-               ORDER by locations.UTC DESC LIMIT 1' % (year - 1)
+    command = 'SELECT *, \
+CAST(strftime("%Y", UTC) AS INTEGER) as year \
+FROM locations WHERE year={0:d} ORDER by locations.UTC'.format(year)
+    command2 = 'SELECT *, \
+CAST(strftime("%Y", UTC) AS INTEGER) as year \
+CAST(strftime("%m", UTC) AS INTEGER) as month \
+FROM locations WHERE month=12 AND year={0:d} \
+ORDER by locations.UTC DESC LIMIT 1'.format(year - 1)
 elif args.period == 'all':
     command = 'SELECT * FROM locations ORDER by locations.UTC'
 cursor.execute(command)
