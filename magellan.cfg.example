@@ -1,6 +1,6 @@
 # Please enter appropriate values and rename to 'magellan.cfg'
 [database]
-db = /path/to/magellan.db
+db_file = /path/to/magellan.db
 
 [Analysis]
 # threshold for something to be considered "traveling", in m/s
