@@ -2,7 +2,7 @@
 
 ## 0.4.x Series
 
-### 0.4.1 (in progress)
+### 0.4.1 (2020 September 12)
 
 #### Bug Fixes
 
