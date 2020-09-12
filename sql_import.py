@@ -23,12 +23,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 
-import time
 import sys
 import os
 import re
-import magellan
 import argparse
+import magellan
 
 
 parser = argparse.ArgumentParser(description='Import a CSV file with GPS data \
@@ -47,7 +46,7 @@ f = 0
 for filename in args.files:
     i = 0
     d = 0
-    if not(os.path.isfile(filename)):
+    if not os.path.isfile(filename):
         sys.stderr.write(filename + " not found. Skipping.\n")
         continue
     infile = open(filename, "r")

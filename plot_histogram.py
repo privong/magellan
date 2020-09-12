@@ -22,14 +22,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 import sys
-import time
-import math
-import numpy
 import argparse
+from datetime import date
+import numpy
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
-from datetime import date
 import magellan
 
 
@@ -93,7 +91,7 @@ recs = cursor.fetchall()
 
 if len(recs) == 0:
     sys.stderr.write("ERROR: no analysis data found.\n")
-    sys.exit
+    sys.exit()
 
 sys.stdout.write("Retreived %i results.\n" % (len(recs)))
 

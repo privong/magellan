@@ -22,15 +22,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 import sys
-import time
-import math
+import argparse
+from datetime import date
+import numpy as np
+import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-import numpy as np
 import magellan
-from datetime import date
-import argparse
-import matplotlib.pyplot as plt
 
 
 def plot_map(positions, plotfile):
@@ -188,7 +186,7 @@ for rec1 in recs[1:]:
             # within an existing unique location
             umatch = True
             awaylocs[i].append([thisloc[0][0], thisloc[0][1]])
-    if not(umatch):
+    if not umatch:
         # no match, add this location to the unique locations list
         awaylocs.append([[thisloc[0][0], thisloc[0][1]]])
 

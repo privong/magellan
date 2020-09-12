@@ -23,10 +23,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 from datetime import datetime
-import math
-import magellan
 from datetime import date
 import argparse
+import magellan
 
 
 parser = argparse.ArgumentParser(description='Analyze stored location \

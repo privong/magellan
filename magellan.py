@@ -36,6 +36,12 @@ class magellan:
             _sys.stderr.write('Could not load configuration file.\n')
             _sys.exit(-1)
 
+        # sql db connection
+        self.scon = None
+        # analysis parameters
+        self.travelspeed = None
+        self.uniquedist = None
+
     # load configuration file and connect to the database
     def initdb(self):
         """
@@ -71,7 +77,7 @@ class magellan:
         try:
             self.scon.close()
         except:
-            _sys.stderr.write('Error closing MySQL database connection.\n')
+            _sys.stderr.write('Error closing sqlite database.\n')
             _sys.exit(1)
 
     def loadanalysis(self):
