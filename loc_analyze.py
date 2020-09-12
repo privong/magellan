@@ -5,7 +5,7 @@ loc_analyze.py
 Provide a (weekly/monthly) analysis of GPS log information.
 The information will be retreived from an SQL database
 
-Copyright (C) 2014-2018 George C. Privon
+Copyright (C) 2014-2018, 2020 George C. Privon
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import MySQLdb
 import sys
 import time
 import math

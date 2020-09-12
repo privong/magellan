@@ -4,7 +4,7 @@ map_locations.py
 
 Generate and save a map of locations visited, based on GPS logs.
 
-Copyright (C) 2014-2018 George C. Privon
+Copyright (C) 2014-2018, 2020 George C. Privon
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 
-import MySQLdb
 import sys
 import time
 import math
