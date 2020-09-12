@@ -47,7 +47,7 @@ class magellan:
         """
         initdb()
 
-        Connect to the MySQL server and return an interface to the server
+        Connect to the sqlite database and return an interface
         """
 
         # load information from the configuration file
