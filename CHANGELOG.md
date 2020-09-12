@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.x Series
+
+### 0.5.0 (in preparation)
+
+#### Deprecations
+
+* tipboard functionality has been removed
+
 ## 0.4.x Series
 
 ### 0.4.1 (2020 September 12)
