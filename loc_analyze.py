@@ -91,7 +91,7 @@ if args.period == 'week' and week < 0:
 if args.period == 'week':
     sys.stdout.write("Loading home location for week %i of %i...\n" %
                      (week, year))
-    command = 'SELECT startdate,enddate,lat,lon,homeradiu FROM homeloc WHERE \
+    command = 'SELECT startdate,enddate,lat,lon,homeradius FROM homeloc WHERE \
               (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) > %i) OR \
               (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) = %i AND WEEK(ENDDATE,1) >= %i) OR \
               (YEAR(STARTDATE) = %i AND WEEK(STARTDATE,1) <= %i AND YEAR(ENDDATE) > %i) OR \
@@ -103,7 +103,7 @@ if args.period == 'week':
 elif args.period == 'month':
     sys.stdout.write("Loading home location for month %i of %i...\n" %
                      (month, year))
-    command = 'SELECT startdate,enddate,lat,lon,homeradiu FROM homeloc WHERE \
+    command = 'SELECT startdate,enddate,lat,lon,homeradius FROM homeloc WHERE \
              (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE) <= %i AND \
               YEAR(ENDDATE) > %i) OR \
              (YEAR(STARTDATE) <= %i AND MONTH(STARTDATE) <= %i AND \
@@ -120,12 +120,12 @@ elif args.period == 'month':
                 year, month, year)
 elif args.period == 'year':
     sys.stdout.write("Loading home location for %i...\n" % (year))
-    command = 'SELECT startdate,enddate,lat,lon,homeradiu FROM homeloc WHERE \
+    command = 'SELECT startdate,enddate,lat,lon,homeradius FROM homeloc WHERE \
                (YEAR(STARTDATE) <= %i AND YEAR(ENDDATE) >= %i)' \
                % (year, year)
 elif args.period == 'all':
     sys.stdout.write("Loading all home locations...\n")
-    command = 'SELECT startdate,enddate,lat,lon,homeradiu FROM homeloc ORDER BY STARTDATE'
+    command = 'SELECT startdate,enddate,lat,lon,homeradius FROM homeloc ORDER BY STARTDATE'
 cursor.execute(command)
 recs = cursor.fetchall()
 

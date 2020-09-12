@@ -28,7 +28,7 @@ CREATE TABLE `homeloc` (
 ,  `lat` float NOT NULL
 ,  `lon` float NOT NULL
 ,  `ref_alt` float DEFAULT NULL
-,  `homeradiu` float NOT NULL DEFAULT 60
+,  `homeradius` float NOT NULL DEFAULT 60
 ,  `locID` integer DEFAULT NULL
 ,  `comment` varchar(120) DEFAULT NULL
 ,  UNIQUE (`startdate`,`enddate`)
