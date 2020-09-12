@@ -17,7 +17,6 @@ Possible outputs include histograms of time spent each week/month in the above s
 
 * `README.md` This file.
 * `magellan.sql` sqlite3 database structure
-* `TIPBOARD.md` Information on sending magellan analysis information to a [Tipboard](http://tipboard.readthedocs.org) dashboard instance.
 * [Autumn 2011 Article in 2600](https://github.com/privong/magellan/wiki/2600-Article), which resulted from my early work on what would become **magellan**
 
 ## Scripts
@@ -26,7 +25,6 @@ Possible outputs include histograms of time spent each week/month in the above s
 * `loc_analyze.py` Determine if a given location qualifies as "home", "away", or "traveling"
 * `plot_histogram.py` Make plots of week home/away/travel fractions for the past 10 weeks or the past year.
 * `sql_import.py` import a CSV table of GPS locations to the database.
-* `magellan_dashboard.py` Upload histogram location information to a [tipboard](https://github.com/allegro/tipboard) dashboard
 
 ## Other
 
