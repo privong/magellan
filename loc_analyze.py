@@ -156,17 +156,12 @@ if args.period == 'week':
     command2 = 'SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i \
                ORDER by locations.UTC DESC LIMIT 1' % \
                ((52, year-1), (week-1, year))[week > 1]
-    # command3='SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i \
-    #          ORDER by locations.UTC' % ((0,year+1),(week+1,year))[week < 53]
 elif args.period == 'month':
     command = 'SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i \
               ORDER by locations.UTC' % (month, year)
     command2 = 'SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i \
                ORDER by locations.UTC DESC LIMIT 1' % \
                ((12, year-1), (month-1, year))[month > 1]
-    # command3='SELECT * FROM locations WHERE MONTH(UTC)=%i AND YEAR(UTC)=%i \
-    #          ORDER by locations.UTC' % \
-    #          ((1,year+1),(month+1,year))[month < 12]
 elif args.period == 'year':
     command = 'SELECT * FROM locations WHERE YEAR(UTC)=%i \
               ORDER by locations.UTC' % (year)
