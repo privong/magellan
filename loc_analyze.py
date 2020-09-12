@@ -91,15 +91,15 @@ if args.period == 'week' and week < 0:
 if args.period == 'week':
     sys.stdout.write("Loading home location for week %i of %i...\n" %
                      (week, year))
-    command = 'SELECT startdate,enddate,lat,lon,homeradius FROM homeloc WHERE \
-              (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) > %i) OR \
-              (YEAR(STARTDATE) < %i AND YEAR(ENDDATE) = %i AND WEEK(ENDDATE,1) >= %i) OR \
-              (YEAR(STARTDATE) = %i AND WEEK(STARTDATE,1) <= %i AND YEAR(ENDDATE) > %i) OR \
-              (YEAR(STARTDATE) = %i AND WEEK(STARTDATE,1) <= %i AND YEAR(ENDDATE) = %i AND WEEK(ENDDATE,1) >= %i)' \
-              % (year, year,
-                 year, year, week,
-                 year, week, year,
-                 year, week, year, week)
+    command = 'SELECT startdate,enddate,lat,lon,homeradius, \
+(strftime("%j", date(startdate, "-3 days", "weekday 4")) - 1) / 7 as isoweek_s, \
+(strftime("%j", date(enddate, "-3 days", "weekday 4")) - 1) / 7 as isoweek_e, \
+CAST(strftime("%Y", startdate) as INTEGER) as year_s, \
+CAST(strftime("%Y", enddate) as INTEGER) as year_e \
+FROM homeloc WHERE \
+(year_s < {0:d} AND year_e = {0:d} AND isoweek_e >= {1:d}) OR \
+(year_s = {0:d} AND isoweek_s <= {1:d} AND year_e > {0:d}) OR \
+(year_s = {0:d} AND isoweek_s <= {1:d} AND year_e = {0:d} AND isoweek_e >= {1:d})'.format(year, week)
 elif args.period == 'month':
     sys.stdout.write("Loading home location for month %i of %i...\n" %
                      (month, year))
@@ -151,9 +151,15 @@ else:
 # 'command2' selects the final record from the previous period, so we can
 #   correctly tag the first point of the current period
 if args.period == 'week':
-    command = 'SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i \
+    command = 'SELECT *, \
+               (strftime("%j", date(UTC, "-3 days", "weekday 4")) - 1) / 7  \
+               as isoweek \
+               FROM locations WHERE isoweek=%i AND YEAR(UTC)=%i \
               ORDER by locations.UTC' % (week, year)
-    command2 = 'SELECT * FROM locations WHERE WEEK(UTC,1)=%i AND YEAR(UTC)=%i \
+    command2 = 'SELECT *, \
+               (strftime("%j", date(UTC, "-3 days", "weekday 4")) - 1) / 7  \
+               as isoweek \
+               FROM locations WHERE isoweek)=%i AND YEAR(UTC)=%i \
                ORDER by locations.UTC DESC LIMIT 1' % \
                ((52, year-1), (week-1, year))[week > 1]
 elif args.period == 'month':
