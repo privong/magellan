@@ -105,7 +105,7 @@ of points is not a multiple of 8.\n")
         for i in range(nmeas):
             if _np.median(speed[i*8:(i+1)*8]) > 0.0:
                 _sys.stderr.write("Median speed not zero for a dataset. \
-skipping")
+skipping.\n")
                 conv[i]['lat'] = _np.nan
                 conv[i]['lon'] = _np.nan
                 conv[i]['speed'] = _np.nan
