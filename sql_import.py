@@ -133,7 +133,7 @@ def main():
 
         if args.v990:
             # load and import CSV files from a Columbus V990 logger
-            recs = v990_tools.load_track(infile, average=True)
+            recs = v990_tools.load_track(filename, average=True)
             i, d = import_records(scur, TABLENAME, recs)
             sys.stdout.write("%i unique records imported from %s. " %
                              (i-d, filename))
