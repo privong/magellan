@@ -12,6 +12,7 @@ Possible outputs include histograms of time spent each week/month in the above s
 * numpy
 * matplotlib (for histogram plotting)
 * cartopy (for map generation)
+* gpxpy (for importing gpx files)
 
 ## Documentation
 
