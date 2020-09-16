@@ -120,3 +120,8 @@ def yearid(year, other):
     Generate unique yearIDs by concatenating the year with another value
     """
     return int(str(year)+str(other).zfill(2))
+
+
+if __name__ == "__main__":
+    _sys.stderr.write("This is a library of functions, not an interface. ")
+    _sys.stderr.write("Please see the documentation.\n")
