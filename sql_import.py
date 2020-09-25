@@ -2,9 +2,10 @@
 """
 sql_import.py
 
-Load a textfile (CSV) of GPS data and store it into a SQL database.
-The log file should have the following format:
-UTC time,lat,long,horiz accuracy,alt,vert accuracy,speed,heading,battery
+Import GPS logging data into a SQL database. The file can be:
+    - CSV (with columns: UTC time,lat,lon,horiz accuracy,
+           alt,vert accuracy,speed,heading,[battery])
+    - GPX (requires `gpxpy` module)
 
 Copyright (C) 2014-2018, 2020 George C. Privon
 
@@ -30,8 +31,8 @@ import argparse
 import magellan
 
 
-parser = argparse.ArgumentParser(description='Import a CSV file with GPS data \
-        into the Magellan database.')
+parser = argparse.ArgumentParser(description='Import a file with GPS data \
+into the Magellan database.')
 parser.add_argument('files', type=str, default=False, nargs='+',
                     help='File(s) to import')
 args = parser.parse_args()
