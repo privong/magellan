@@ -72,6 +72,7 @@ class magellan:
         Gracefully disconnect from the database.
         """
         try:
+            self.scon.commit()
             self.scon.close()
         except:
             _sys.stderr.write('Error closing sqlite database.\n')

@@ -2,6 +2,12 @@
 
 ## 0.5.x Series
 
+### 0.5.1 (2020 September 24)
+
+#### Bugfix
+
+* `sqlite3` python module requires a `commit()` in order to save changes to the db. added to database close routine.
+
 ### 0.5.0 (2020 September 12)
 
 ### Enhancements
