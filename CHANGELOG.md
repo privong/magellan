@@ -2,6 +2,12 @@
 
 ## 0.5.x Series
 
+### 0.5.2 (in progress)
+
+#### Deprecations
+
+* Remove unused `batt` column from database
+
 ### 0.5.1 (2020 September 24)
 
 #### Bugfix

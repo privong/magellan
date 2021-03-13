@@ -4,10 +4,10 @@ sql_import.py
 
 Import GPS logging data into a SQL database. The file can be:
     - CSV (with columns: UTC time,lat,lon,horiz accuracy,
-           alt,vert accuracy,speed,heading,[battery])
+           alt,vert accuracy,speed,heading)
     - GPX (requires `gpxpy` module)
 
-Copyright (C) 2014-2018, 2020 George C. Privon
+Copyright (C) 2014-2018, 2020-2021 George C. Privon
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -63,7 +63,6 @@ for filename in args.files:
                     vacc = -1
                     speed = 0
                     heading = -1
-                    batt = -1
                     # do we have elevation?
                     if loc.has_elevation():
                         elev = loc.elevation
@@ -84,13 +83,13 @@ for filename in args.files:
                         d += 1
                     # INSERT INTO locations VALUES
                     # (datetime,lat,long,horizacc,alt,vertacc,speed,
-                    # heading,battery)
+                    # heading)
                     command = 'INSERT INTO %s VALUES \
-                              (\'%s\',%f,%f,%f,%f,%f,%f,%f,%i)' % \
+                              (\'%s\',%f,%f,%f,%f,%f,%f,%f)' % \
                               (TABLENAME,
                                loc.time.strftime("%Y-%m-%d %H:%M:%S"),
                                loc.latitude, loc.longitude, hacc, elev, vacc,
-                               speed, heading, batt)
+                               speed, heading)
                     scur.execute(command)
                     i += 1
     else:
@@ -101,7 +100,6 @@ for filename in args.files:
                 break
             if i > 0:
                 s = line.split(',')
-                batt = -1
                 vacc = -1
                 # make sure we don't already have an entry for this time
                 command = 'SELECT * FROM %s WHERE UTC = \'%s\'' % \
@@ -118,12 +116,12 @@ for filename in args.files:
                     d += 1
                 # INSERT INTO locations VALUES
                 # (datetime,lat,long,horizacc,alt,vertacc,speed,
-                # heading,battery)
+                # heading)
                 command = 'INSERT INTO %s VALUES \
-                          (\'%s\',%f,%f,%f,%f,%f,%f,%f,%i)' % \
+                          (\'%s\',%f,%f,%f,%f,%f,%f,%f)' % \
                           (TABLENAME, s[0].split('Z')[0], float(s[1]),
                            float(s[2]), float(s[4]), float(s[3]), vacc,
-                           float(s[6]), float(s[5].rstrip('%\n')), batt)
+                           float(s[6]), float(s[5].rstrip('%\n')))
                 scur.execute(command)
                 i += 1
             else:

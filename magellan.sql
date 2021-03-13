@@ -35,14 +35,13 @@ CREATE TABLE `homeloc` (
 );
 CREATE TABLE `locations` (
   `UTC` datetime DEFAULT NULL
-,  `Lat` float DEFAULT NULL
-,  `Lon` float DEFAULT NULL
+,  `lat` float DEFAULT NULL
+,  `lon` float DEFAULT NULL
 ,  `hacc` float DEFAULT NULL
-,  `Alt` float DEFAULT NULL
+,  `alt` float DEFAULT NULL
 ,  `vacc` float DEFAULT NULL
 ,  `speed` float DEFAULT NULL
 ,  `heading` float DEFAULT NULL
-,  `batt` integer DEFAULT NULL
 ,  UNIQUE (`UTC`)
 );
 CREATE TABLE `locations_spec` (
