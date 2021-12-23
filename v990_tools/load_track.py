@@ -66,22 +66,22 @@ def load_track(fname,
         raise ValueError("Mode must be either 'standard' or 'professional'.\n")
 
     if mode == 'standard':
-        dtype = [('date', 'S6'),
-                 ('time', 'S6'),
-                 ('lat', 'S14'),
-                 ('lon', 'S14'),
-                 ('height', 'S8'),
-                 ('speed', 'S8'),
-                 ('heading', 'S8')]
+        dtype = [('date', 'S6'),    # YYMMDD
+                 ('time', 'S6'),    # HHMMSS
+                 ('lat', 'S14'),    # degrees
+                 ('lon', 'S14'),    # degrees
+                 ('height', 'S8'),  # meters
+                 ('speed', 'S8'),   # km/hr
+                 ('heading', 'S8')] # degrees
         datacols = (2, 3, 4, 5, 6, 7, 8)
     elif mode == 'professional':
-        dtype = [('date', 'S6'),
-                 ('time', 'S6'),
-                 ('lat', 'S14'),
-                 ('lon', 'S14'),
-                 ('height', 'S8'),
-                 ('speed', 'S8'),
-                 ('heading', 'S8'),
+        dtype = [('date', 'S6'),    # YYMMDD
+                 ('time', 'S6'),    # HHMMSS
+                 ('lat', 'S14'),    # degrees
+                 ('lon', 'S14'),    # degrees
+                 ('height', 'S8'),  # meters
+                 ('speed', 'S8'),   # km/hr
+                 ('heading', 'S8'), # degrees
                  ('PDOP', 'S8'),
                  ('HDOP', 'S8'),
                  ('VDOP', 'S8')]
