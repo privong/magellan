@@ -172,6 +172,8 @@ def average_track_groups(df):
     such that there is a single datapoint for each group.
     """
 
+    df = find_track_groups(df)
+
     assert 'groupID' in df.columns, "Error: 'groupID' not found in the track data. `find_track_groups()` was not applied or not applied successfull."
 
     raise NotImplementedError
