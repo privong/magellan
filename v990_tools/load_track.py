@@ -209,4 +209,3 @@ ping.\n")
             ndates.append(raw['date'][i+3])
             ntimes.append(raw['time'][i+3])
         """
-    dates = v990_assemble_date(ndates, ntimes)
