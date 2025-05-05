@@ -133,7 +133,7 @@ def main():
 
         if args.v990:
             # load and import CSV files from a Columbus V990 logger
-            recs = v990_tools.load_track(filename, average=True)
+            recs = v990_tools.load_track(filename)
             # identify groups
             recs_wgroups = v990_tools.find_track_groups(recs)
             # keep only the first entry in each group
