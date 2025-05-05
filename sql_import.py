@@ -134,7 +134,11 @@ def main():
         if args.v990:
             # load and import CSV files from a Columbus V990 logger
             recs = v990_tools.load_track(filename, average=True)
-            i, d = import_records(scur, TABLENAME, recs)
+            # identify groups
+            recs_wgroups = v990_tools.find_track_groups(recs)
+            # keep only the first entry in each group
+            recs_keep = decimate_track_groups(recs_wgroups)
+            i, d = import_records(scur, TABLENAME, recs_keep)
             sys.stdout.write("%i unique records imported from %s. " %
                              (i-d, filename))
             sys.stdout.write("%i duplicate records replaced.\n" % (d))
