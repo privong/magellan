@@ -137,7 +137,11 @@ def main():
             # identify groups
             recs_wgroups = v990_tools.find_track_groups(recs)
             # keep only the first entry in each group
-            recs_keep = decimate_track_groups(recs_wgroups)
+            recs_keep = v990_tools.decimate_track_groups(recs_wgroups)
+            ## TODO: here we need to transform the pandas DF returned
+            ## into a more boring format that insert_records() expects.
+            ## this includes formatting the date as a string
+            raise NotImplementedError
             i, d = import_records(scur, TABLENAME, recs_keep)
             sys.stdout.write("%i unique records imported from %s. " %
                              (i-d, filename))
