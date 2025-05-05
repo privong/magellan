@@ -213,6 +213,15 @@ def find_track_groups(df,
                      right_index=True)
 
 
+def decimate_track_groups(df):
+    """
+    Keep only the first entry of each group. Averaging may slightly
+    improve measurements but it is probably not worth the hassle.
+    """
+
+    return df.drop_duplicates(subset=['groupID'],keep='first')
+
+
 def average_track_groups(df):
     """
     Take a loaded track with groups identified and average over each group
