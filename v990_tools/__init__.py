@@ -7,6 +7,5 @@ GPS logger
 
 
 from .load_track import load_track
-from .load_track import average_track_groups
 from .load_track import find_track_groups
 from .load_track import decimate_track_groups
