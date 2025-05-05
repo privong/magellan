@@ -156,14 +156,58 @@ def load_track(fname,
     return df
 
 
-def find_track_groups(df):
+def find_track_groups(df,
+                      max_sep_group=80.0):
     """
     For a loaded track in "spy mode", identify the groups for the clustered
     measurements. Nomnally there are eight points per group, but this is
     not always the case.
+
+    Empirically, based on track data obtained with my V990 between Jan 2020
+    through April 2025:
+    - 95% of lags are 1s
+    - 95% of lags are < 2s
+    - 99.5% of lags are < 3s
+    - 99.9% of lags are < 8s
+    - 99.99% of lags are <78.5s
+    So we pick the default `max_sep_group` to be 80s.
+
+    Parameters:
+    -----------
+    df : pandas.DataFrame
+        Input list of track points, un-averaged
+    max_sep_group: float
+        Length in seconds over which to consider a track as a group
+
+    Returns
+    -------
+
     """
 
-    raise NotImplementedError
+    # calculate the time between successive points
+    dts = df.index - _np.roll(df.index, 1)
+
+    # initialize an array to hold the group IDs, the first item is a member
+    # of group 0
+    groupIDs = -1 * _np.zeros(len(dts))
+    groupIDs[0] = 0
+
+    # scan the list of dt's to assign groups, staring with the second entry
+    for i, dt in enumerate(dts[1:]):
+        if dt.total_seconds() <= max_sep_group:
+            # the DT is short enough to be part of the same group as the previous one
+            groupIDs[i+1] = groupIDs[i]
+        else:
+            # otherwise, start a new group
+            groupIDs[i+1] = groupIDs[i] + 1
+
+    return _pd.merge(left=df,
+                     right=_pd.Series(data=groupIDs,
+                                      index=df.index,
+                                      name="groupID",
+                                      dtype=int),
+                     left_index=True,
+                     right_index=True)
 
 
 def average_track_groups(df):
