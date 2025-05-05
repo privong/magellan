@@ -153,6 +153,9 @@ def load_track(fname,
     df = _pd.DataFrame(data=conv,
                        index=dates)
 
+    # remove any duplicate entries (based on the time/index)
+    df = df[~df.index.duplicated(keep='first')]
+
     return df
 
 
